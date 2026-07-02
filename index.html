@@ -178,7 +178,7 @@ textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--
   <div id="champBox"></div>
   <div class="row" style="margin-bottom:10px">
     <button class="act green" onclick="saveToHistory()">💾 Lưu vào lịch sử</button>
-    <button class="act" onclick="shareLink()">🔗 Chia sẻ link</button>
+    <button class="act" onclick="openShare()">🔗 Chia sẻ link</button>
   </div>
   <div id="wrap"><div id="cols"></div></div>
   <div class="hint">Chạm vào trận đấu để nhập tỉ số · vuốt ngang để xem các vòng</div>
@@ -222,6 +222,17 @@ textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--
       </div>
       <input type="file" id="cuFile" accept="image/*" style="display:none" onchange="handleFile(event)"/>
     </div>
+  </div>
+</div>
+
+<!-- Share chooser -->
+<div class="ov" id="shareOv" onclick="if(event.target===this)closeOv('shareOv')">
+  <div class="sheet">
+    <h2>🔗 Chia sẻ link</h2>
+    <button class="act green" style="width:100%;padding:14px" onclick="shareLink(false)">⚽ Chia sẻ giải hiện tại</button>
+    <div class="hint" style="margin:6px 0 14px">Người nhận xem sơ đồ + kết quả của giải này</div>
+    <button class="act gold" style="width:100%;padding:14px" onclick="shareLink(true)">📊 Chia sẻ TẤT CẢ — giải + lịch sử + thống kê</button>
+    <div class="hint" style="margin:6px 0 0">Người nhận theo dõi được cả các giải đã lưu, BXH cộng dồn, số lần vô địch của từng đội/HLV</div>
   </div>
 </div>
 
@@ -438,7 +449,7 @@ function buildRounds(size){
   }
   return rs;
 }
-var SHARED=false;
+var SHARED=false,SHIST=null;
 function save(){if(SHARED)return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function load(){
   try{
@@ -449,7 +460,10 @@ function load(){
   }catch(e){}
   return null;
 }
-function loadHist(){try{var h=localStorage.getItem(HKEY);return h?JSON.parse(h):[]}catch(e){return []}}
+function loadHist(){
+  if(SHARED&&SHIST)return SHIST;
+  try{var h=localStorage.getItem(HKEY);return h?JSON.parse(h):[]}catch(e){return []}
+}
 function saveHist(h){localStorage.setItem(HKEY,JSON.stringify(h))}
 
 function tOK(s,i){return i!=null&&s.teams[i]!=null}
@@ -800,6 +814,7 @@ function clearMatch(){
 
 /* ================= HISTORY ================= */
 function saveToHistory(){
+  if(SHARED){alert('Bạn đang xem bản chia sẻ — hãy bấm "📥 Lưu giải này về máy" trước đã.');return}
   var fin=S.rounds[S.rounds.length-1][0];
   if(winnerOf(fin)==null&&!confirm('Giải chưa có nhà vô địch. Vẫn lưu vào lịch sử?'))return;
   var h=loadHist();
@@ -849,7 +864,7 @@ function renderHist(){
     if(s.note)out+='<div class="note">📝 '+esc(s.note)+'</div>';
     out+='<div class="btnRow" style="margin-top:8px">'+
       '<button onclick="openHist(\''+e.id+'\')">📂 Mở lại</button>'+
-      '<button class="warn" onclick="delHist(\''+e.id+'\')">🗑 Xóa</button></div></div>';
+      (SHARED?'':'<button class="warn" onclick="delHist(\''+e.id+'\')">🗑 Xóa</button>')+'</div></div>';
   });
   $('#histBody').innerHTML=out;
 }
@@ -863,6 +878,7 @@ function openHist(id){
   propagate();save();renderSetup();showView('bracket');
 }
 function delHist(id){
+  if(SHARED)return;
   if(!confirm('Xóa giải này khỏi lịch sử? Thống kê sẽ tính lại.'))return;
   var h=loadHist().filter(function(e){return e.id!==id});
   saveHist(h);
@@ -1212,8 +1228,8 @@ async function inflateStr(bytes){
   w.write(bytes);w.close();
   return new TextDecoder().decode(await new Response(ds.readable).arrayBuffer());
 }
-function shareObj(){
-  var o=JSON.parse(JSON.stringify(S));
+function compactSnap(s){
+  var o=JSON.parse(JSON.stringify(s));
   o.histId=null;
   o.teams=o.teams.map(function(t,i){
     if(!t)return null;
@@ -1224,8 +1240,18 @@ function shareObj(){
   });
   return o;
 }
-async function shareLink(){
-  var json=JSON.stringify(shareObj());
+function openShare(){$('#shareOv').classList.add('show')}
+async function shareLink(all){
+  closeOv('shareOv');
+  var payload;
+  if(all){
+    payload={cur:compactSnap(S),hist:loadHist().map(function(e){
+      return {id:e.id,date:e.date,snap:compactSnap(e.snap)};
+    })};
+  }else{
+    payload=compactSnap(S);
+  }
+  var json=JSON.stringify(payload);
   var hash;
   try{
     if(window.CompressionStream)hash='#s='+b64u(await deflateStr(json));
@@ -1245,8 +1271,19 @@ async function shareLink(){
   }
 }
 function importShared(){
-  if(!confirm('Lưu giải này về máy? Giải hiện tại trên máy sẽ bị thay thế (lịch sử đã lưu không mất).'))return;
-  SHARED=false;S.histId=null;save();
+  var msg=(SHIST&&SHIST.length)
+    ?'Lưu giải này VÀ '+SHIST.length+' giải trong lịch sử được chia sẻ về máy? Giải đang mở trên máy sẽ bị thay thế; lịch sử được gộp thêm, không mất gì.'
+    :'Lưu giải này về máy? Giải hiện tại trên máy sẽ bị thay thế (lịch sử đã lưu không mất).';
+  if(!confirm(msg))return;
+  var sharedHist=SHIST;
+  SHARED=false;SHIST=null;
+  if(sharedHist&&sharedHist.length){
+    var loc=loadHist(),have={};
+    loc.forEach(function(e){have[e.id]=1});
+    var add=sharedHist.filter(function(e){return !have[e.id]});
+    try{saveHist(add.concat(loc))}catch(e){alert('Lịch sử chia sẻ quá lớn, không gộp được hết.')}
+  }
+  S.histId=null;save();
   try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
   $('#shareBanner').style.display='none';
   renderSetup();
@@ -1259,8 +1296,10 @@ async function checkShared(){
     var bytes=ub64u(m[2]);
     var json=m[1]==='s'?await inflateStr(bytes):new TextDecoder().decode(bytes);
     var o=JSON.parse(json);
+    var hist=null;
+    if(o&&o.cur){hist=o.hist||[];o=o.cur}
     if(!o||!o.rounds||!o.teams)throw new Error('bad');
-    SHARED=true;S=o;
+    SHARED=true;SHIST=hist;S=o;
     propagate();renderSetup();showView('bracket');
     $('#shareBanner').style.display='';
     return true;

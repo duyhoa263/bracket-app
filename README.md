@@ -40,8 +40,11 @@ Mở link bằng **Safari** → nút **Chia sẻ** (ô vuông mũi tên) → **T
 
 ### 🔗 Chia sẻ cho người khác xem
 - **Chia sẻ ảnh**: nút 📸 Xuất ảnh → Chia sẻ/Lưu → gửi PNG qua Zalo/Messenger
-- **Chia sẻ link** (mới): nút 🔗 Chia sẻ link ở tab Sơ đồ — toàn bộ dữ liệu giải được nén vào trong link (~1KB). Người nhận mở link là xem được **nguyên sơ đồ tương tác** (vòng đấu, tỉ số, luân lưu, HLV, ghi chú) và có thể nhấn **📥 Lưu giải này về máy** để giữ lại. Không cần server, không cần tài khoản
-- Lưu ý: link chỉ hoạt động khi app đã đưa lên mạng (Netlify/GitHub Pages); logo tự tải lên sẽ được thay bằng huy hiệu chữ trong link để link không quá dài
+- **Chia sẻ link**: nút 🔗 Chia sẻ link ở tab Sơ đồ, có 2 lựa chọn:
+  - **⚽ Chia sẻ giải hiện tại** — người nhận xem sơ đồ + kết quả của riêng giải này
+  - **📊 Chia sẻ TẤT CẢ** — gói cả giải hiện tại + toàn bộ Lịch sử + Thống kê (BXH cộng dồn, số lần vô địch theo HLV) vào link, để cả nhóm cùng theo dõi
+- Người nhận mở link thấy **giao diện tương tác** đầy đủ, xem được các tab Thống kê/Lịch sử (chế độ chỉ-xem), và có thể nhấn **📥 Lưu giải này về máy** để giữ lại (lịch sử được gộp thêm, không ghi đè)
+- Lưu ý: link chỉ hoạt động khi app đã đưa lên mạng; logo tự tải lên sẽ thay bằng huy hiệu chữ trong link để link gọn nhẹ
 
 ### 📸 Xuất ảnh + Ghi chú
 - Nhấn Xuất ảnh → nhập **ghi chú** (tùy chọn) → ghi chú in ở **góc trái dưới ảnh**
