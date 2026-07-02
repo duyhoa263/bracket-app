@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Cúp Đấu Loại"/>
+<meta name="theme-color" content="#0b1220"/>
+<title>⚽ Cúp Đấu Loại Trực Tiếp</title>
+<style>
+:root{--bg:#0b1220;--card:#151f33;--card2:#1b2942;--line:#2a3a55;--tx:#e6edf7;--dim:#8fa3c0;--acc:#22c55e;--gold:#fbbf24;--red:#ef4444}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:linear-gradient(180deg,#0b1220 0%,#101c33 100%);color:var(--tx);font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+header{position:sticky;top:0;z-index:20;background:rgba(11,18,32,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 14px 0 14px}
+#tName{width:100%;background:transparent;border:none;color:var(--gold);font-size:20px;font-weight:800;text-align:center;padding:4px;outline:none}
+nav{display:flex;gap:6px;margin:8px 0 10px}
+nav button{flex:1;padding:9px 0;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--dim);font-size:12.5px;font-weight:700}
+nav button.on{background:var(--acc);border-color:var(--acc);color:#04220f}
+main{padding:14px;max-width:860px;margin:0 auto}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.panel h3{margin:0 0 10px;font-size:14px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px}
+select,button.act{padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-size:15px;font-weight:600}
+button.act.green{background:var(--acc);border-color:var(--acc);color:#04220f}
+button.act.gold{background:var(--gold);border-color:var(--gold);color:#3a2a00}
+button.act.red{background:transparent;border-color:var(--red);color:var(--red)}
+label.ck{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--dim)}
+input[type=checkbox]{width:19px;height:19px;accent-color:var(--acc)}
+.mgrIn{flex:1;min-width:100px;padding:9px 11px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-size:14px;font-weight:700;outline:none}
+.mgrIn.a{border-color:#1d4ed8}.mgrIn.b{border-color:#b91c1c}
+.grpHead{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:10px 2px 6px}
+.grpHead.a{color:#60a5fa}.grpHead.b{color:#f87171}
+/* team slots */
+.slot{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--card2);border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+.slot .idx{width:22px;text-align:center;color:var(--dim);font-size:13px;font-weight:700}
+.slot input.nm{flex:1;min-width:0;background:transparent;border:none;color:var(--tx);font-size:15px;font-weight:600;outline:none;padding:6px 2px}
+.slot input.nm::placeholder{color:#4d6183}
+.lg{width:36px;height:36px;border-radius:50%;background:#22314e;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#9db4d6;flex-shrink:0;overflow:hidden;border:1px solid var(--line)}
+.lg img{width:100%;height:100%;object-fit:contain}
+.lg.flag{border-radius:6px;width:40px;height:29px}
+.lg.flag img{object-fit:cover}
+.slot .pick{padding:7px 10px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--acc);font-size:12px;font-weight:700}
+.slot .del{border:none;background:none;color:var(--dim);font-size:17px;padding:4px 6px}
+/* bracket */
+#wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:10px}
+#cols{display:flex;gap:14px;min-width:min-content}
+.col{display:flex;flex-direction:column;width:232px;flex-shrink:0}
+.colT{text-align:center;color:var(--gold);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;padding:6px 0 10px}
+.colBody{display:flex;flex-direction:column;justify-content:space-around;flex:1;gap:10px}
+.match{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:4px 0}
+.match.done{border-color:#2f4d35}
+.trow{display:flex;align-items:center;gap:8px;padding:7px 9px}
+.trow+.trow{border-top:1px solid var(--line)}
+.trow .lg{width:28px;height:28px;font-size:10px}
+.trow .lg.flag{width:32px;height:23px}
+.trow .nm{flex:1;min-width:0;font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--dim)}
+.trow.win .nm{color:var(--tx);font-weight:800}
+.trow.win{background:rgba(34,197,94,.09)}
+.trow .sc{min-width:22px;text-align:center;font-size:15px;font-weight:800;color:var(--dim)}
+.trow.win .sc{color:var(--acc)}
+.trow .pn{font-size:11px;color:var(--gold);min-width:24px;text-align:right}
+.sd{font-size:9px;font-weight:900;padding:1.5px 5px;border-radius:4px;color:#fff;flex-shrink:0}
+.sd.a{background:#1d4ed8}.sd.b{background:#b91c1c}
+.champ{background:linear-gradient(135deg,#2a2005,#3a2d08);border:1px solid var(--gold);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.champ .lg{width:52px;height:52px;font-size:16px}
+.champ .lg.flag{width:58px;height:42px;border-radius:8px}
+.champ .t1{font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.champ .t2{font-size:19px;font-weight:900}
+.champ .t3{font-size:13px;color:var(--gold);font-weight:700;margin-top:3px}
+.tpbox{margin-top:12px}
+.tpT{text-align:center;color:#cd7f32;font-size:12px;font-weight:800;text-transform:uppercase;padding:4px 0}
+/* stats & history */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{color:var(--dim);font-size:10.5px;text-transform:uppercase;padding:6px 3px;text-align:center;border-bottom:1px solid var(--line);font-weight:800}
+.tbl td{padding:7px 3px;text-align:center;border-bottom:1px solid rgba(42,58,85,.5);font-weight:600}
+.tbl td.l,.tbl th.l{text-align:left}
+.tbl .tc{display:flex;align-items:center;gap:7px;min-width:0}
+.tbl .tc .lg{width:24px;height:24px;font-size:9px}
+.tbl .tc .lg.flag{width:28px;height:20px}
+.tbl .tc span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+.tbl .pts{color:var(--acc);font-weight:900}
+.hitem .hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+.hitem .hd b{font-size:15px}
+.hitem .hd span{font-size:12px;color:var(--dim);flex-shrink:0}
+.hitem .ln{display:flex;align-items:center;gap:8px;font-size:13.5px;margin:5px 0;color:var(--dim)}
+.hitem .ln .lg{width:26px;height:26px;font-size:9px}
+.hitem .ln .lg.flag{width:30px;height:21px}
+.hitem .ln b{color:var(--tx)}
+.hitem .note{font-size:12.5px;font-style:italic;color:#c9b98a;margin:6px 0}
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.ov.show{display:flex}
+.sheet{background:#122036;border:1px solid var(--line);border-radius:18px 18px 0 0;width:100%;max-width:640px;max-height:88vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
+.sheet h2{margin:0 0 12px;font-size:17px;text-align:center}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button{flex:1;padding:9px 0;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--dim);font-size:13px;font-weight:700}
+.tabs button.on{background:var(--card2);border-color:var(--acc);color:var(--acc)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.cell{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.cell .cn{font-size:11px;color:var(--dim);text-align:center;line-height:1.25;height:28px;overflow:hidden}
+.cell .lg{width:44px;height:44px;font-size:13px;background:#fff2}
+.cell .lg.flag{width:46px;height:33px}
+.srch{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-size:15px;margin-bottom:10px;outline:none}
+.fld{margin-bottom:10px}
+.fld label{display:block;font-size:12px;color:var(--dim);margin-bottom:5px;font-weight:700}
+.fld input[type=text]{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-size:15px;outline:none}
+input[type=color]{width:46px;height:38px;border:none;background:none;padding:0}
+textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--tx);font-size:15px;outline:none;font-family:inherit;resize:vertical;margin-bottom:12px}
+/* score modal */
+.svs{display:flex;align-items:center;justify-content:center;gap:10px;margin:8px 0 14px}
+.svs .side{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.svs .side .nm{font-size:13px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.svs input.si{width:64px;height:58px;text-align:center;font-size:28px;font-weight:900;background:var(--card2);border:1.5px solid var(--line);border-radius:12px;color:var(--tx);outline:none}
+.svs input.si:focus{border-color:var(--acc)}
+.svs .dash{color:var(--dim);font-size:22px;font-weight:800}
+#penBox{display:none;background:rgba(251,191,36,.07);border:1px dashed var(--gold);border-radius:12px;padding:10px;margin-bottom:12px}
+#penBox.show{display:block}
+#penBox .pt{text-align:center;color:var(--gold);font-size:12px;font-weight:800;margin-bottom:8px}
+#penBox .svs input.si{width:52px;height:46px;font-size:20px}
+.btnRow{display:flex;gap:8px}
+.btnRow button{flex:1;padding:13px 0;border-radius:12px;font-size:15px;font-weight:800;border:1px solid var(--line);background:var(--card);color:var(--dim)}
+.btnRow button.pri{background:var(--acc);border-color:var(--acc);color:#04220f}
+.btnRow button.warn{background:transparent;border-color:var(--red);color:var(--red)}
+#expImg{width:100%;border-radius:12px;border:1px solid var(--line)}
+.hint{font-size:12px;color:var(--dim);text-align:center;margin:8px 0}
+.fab{position:fixed;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));z-index:30;padding:14px 18px;border-radius:30px;border:none;background:var(--gold);color:#3a2a00;font-size:15px;font-weight:900;box-shadow:0 6px 20px rgba(0,0,0,.45)}
+.empty{text-align:center;color:var(--dim);padding:30px 10px;font-size:14px}
+</style>
+</head>
+<body>
+<header>
+  <input id="tName" maxlength="40"/>
+  <nav>
+    <button id="tab-setup" class="on" onclick="showView('setup')">👥 Đội</button>
+    <button id="tab-bracket" onclick="showView('bracket')">🏆 Sơ đồ</button>
+    <button id="tab-stats" onclick="showView('stats')">📊 T.kê</button>
+    <button id="tab-hist" onclick="showView('hist')">🗂 Lịch sử</button>
+  </nav>
+</header>
+
+<main id="setupView">
+  <div class="panel">
+    <h3>Thiết lập giải</h3>
+    <div class="row">
+      <select id="szSel" onchange="changeSize(this.value)">
+        <option value="4">4 đội</option>
+        <option value="8">8 đội</option>
+        <option value="16">16 đội</option>
+        <option value="32">32 đội</option>
+      </select>
+      <label class="ck"><input type="checkbox" id="thirdCk" onchange="toggleThird(this.checked)"/>Tranh hạng 3</label>
+    </div>
+    <label class="ck" style="margin-top:10px"><input type="checkbox" id="mgrCk" onchange="toggleMgr(this.checked)"/>Chế độ 2 HLV — Bên A đấu Bên B</label>
+    <div id="mgrNames" class="row" style="margin-top:8px;display:none">
+      <input type="text" class="mgrIn a" id="mgrAIn" maxlength="20" placeholder="Tên HLV bên A" oninput="mgrName('A',this.value)"/>
+      <input type="text" class="mgrIn b" id="mgrBIn" maxlength="20" placeholder="Tên HLV bên B" oninput="mgrName('B',this.value)"/>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="act gold" onclick="shuffleTeams()">🎲 Bốc thăm</button>
+      <button class="act" onclick="clearResults()">↺ Xóa tỉ số</button>
+      <button class="act red" onclick="resetAll()">✕ Giải mới</button>
+    </div>
+    <div class="hint" id="mgrHint" style="display:none;text-align:left">💡 Bốc thăm sẽ xếp cặp sao cho hai đội <b>cùng bên không gặp nhau</b> ở vòng đầu. Từ vòng sau đấu bình thường. Đội bên nào vô địch thì HLV bên đó thắng.</div>
+  </div>
+  <div class="panel">
+    <h3>Danh sách đội</h3>
+    <div id="slots"></div>
+  </div>
+</main>
+
+<main id="bracketView" style="display:none">
+  <div id="shareBanner" class="panel" style="display:none;border-color:var(--gold)">
+    <div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:8px">👀 Bạn đang xem giải đấu được chia sẻ — dữ liệu trên máy bạn không bị thay đổi</div>
+    <button class="act green" onclick="importShared()">📥 Lưu giải này về máy</button>
+  </div>
+  <div id="champBox"></div>
+  <div class="row" style="margin-bottom:10px">
+    <button class="act green" onclick="saveToHistory()">💾 Lưu vào lịch sử</button>
+    <button class="act" onclick="shareLink()">🔗 Chia sẻ link</button>
+  </div>
+  <div id="wrap"><div id="cols"></div></div>
+  <div class="hint">Chạm vào trận đấu để nhập tỉ số · vuốt ngang để xem các vòng</div>
+</main>
+
+<main id="statsView" style="display:none">
+  <div class="hint" style="text-align:left">📌 Thống kê cộng dồn từ các giải đã <b>💾 lưu vào Lịch sử</b>. Trận phân định bằng luân lưu tính là <b>hòa</b> (mỗi đội 1 điểm).</div>
+  <div id="statsBody"></div>
+</main>
+
+<main id="histView" style="display:none">
+  <div id="histBody"></div>
+</main>
+
+<button class="fab" id="fabExp" style="display:none" onclick="openNote()">📸 Xuất ảnh</button>
+
+<!-- Team picker -->
+<div class="ov" id="pickOv" onclick="if(event.target===this)closeOv('pickOv')">
+  <div class="sheet">
+    <h2>Chọn đội cho vị trí <span id="pickPos"></span></h2>
+    <div class="tabs">
+      <button id="pt0" class="on" onclick="pickTab(0)">CLB</button>
+      <button id="pt1" onclick="pickTab(1)">Quốc gia</button>
+      <button id="pt2" onclick="pickTab(2)">Tùy chỉnh</button>
+    </div>
+    <div id="pTab0">
+      <select id="lgSel" style="width:100%;margin-bottom:10px" onchange="renderClubs()"></select>
+      <div class="grid" id="clubGrid"></div>
+    </div>
+    <div id="pTab1" style="display:none">
+      <input class="srch" id="ctySrch" placeholder="Tìm quốc gia..." oninput="renderCountries()"/>
+      <div class="grid" id="ctyGrid"></div>
+    </div>
+    <div id="pTab2" style="display:none">
+      <div class="fld"><label>Tên đội</label><input type="text" id="cuName" placeholder="VD: FC Anh Em"/></div>
+      <div class="fld"><label>Chữ trên huy hiệu (tối đa 3 ký tự)</label><input type="text" id="cuAbbr" maxlength="3" placeholder="AE"/></div>
+      <div class="fld row"><label style="margin:0">Màu áo:</label><input type="color" id="cuC1" value="#ef4444"/><input type="color" id="cuC2" value="#3b82f6"/></div>
+      <div class="btnRow" style="margin-top:6px">
+        <button class="pri" onclick="applyCustomBadge()">✓ Dùng huy hiệu này</button>
+        <button onclick="document.getElementById('cuFile').click()">🖼️ Tải logo lên</button>
+      </div>
+      <input type="file" id="cuFile" accept="image/*" style="display:none" onchange="handleFile(event)"/>
+    </div>
+  </div>
+</div>
+
+<!-- Score modal -->
+<div class="ov" id="scoreOv" onclick="if(event.target===this)closeOv('scoreOv')">
+  <div class="sheet">
+    <h2 id="scTitle">Nhập tỉ số</h2>
+    <div class="svs">
+      <div class="side"><div id="scLgA"></div><div class="nm" id="scNmA"></div><input class="si" id="inSA" inputmode="numeric" maxlength="2" oninput="penCheck()"/></div>
+      <div class="dash">–</div>
+      <div class="side"><div id="scLgB"></div><div class="nm" id="scNmB"></div><input class="si" id="inSB" inputmode="numeric" maxlength="2" oninput="penCheck()"/></div>
+    </div>
+    <div id="penBox">
+      <div class="pt">⚽ LOẠT SÚT LUÂN LƯU 11m</div>
+      <div class="svs">
+        <div class="side"><input class="si" id="inPA" inputmode="numeric" maxlength="2"/></div>
+        <div class="dash">–</div>
+        <div class="side"><input class="si" id="inPB" inputmode="numeric" maxlength="2"/></div>
+      </div>
+    </div>
+    <div class="btnRow">
+      <button onclick="clearMatch()">Xóa KQ</button>
+      <button class="pri" onclick="saveScore()">✓ Lưu kết quả</button>
+    </div>
+  </div>
+</div>
+
+<!-- Note before export -->
+<div class="ov" id="noteOv" onclick="if(event.target===this)closeOv('noteOv')">
+  <div class="sheet">
+    <h2>📝 Ghi chú trên ảnh</h2>
+    <textarea id="noteTx" rows="3" maxlength="200" placeholder="VD: Giải giao hữu tối thứ 7 — bên thua rửa xe cho bên thắng 😄 (để trống nếu không cần)"></textarea>
+    <div class="btnRow">
+      <button onclick="closeOv('noteOv')">Hủy</button>
+      <button class="pri" onclick="doExport()">📸 Tạo ảnh</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export modal -->
+<div class="ov" id="expOv" onclick="if(event.target===this)closeOv('expOv')">
+  <div class="sheet">
+    <h2>Ảnh kết quả giải đấu</h2>
+    <img id="expImg" alt="Kết quả"/>
+    <div class="hint">📌 Nhấn giữ ảnh để lưu vào Ảnh, hoặc dùng nút bên dưới</div>
+    <div class="btnRow">
+      <button class="pri" onclick="shareImage()">📤 Chia sẻ / Lưu</button>
+      <button onclick="downloadImage()">⬇️ Tải xuống</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ================= CLUB / COUNTRY DATA ================= */
+var LOGO_BASE='https://cdn.jsdelivr.net/gh/luukhopman/football-logos@master/logos/';
+function clubURL(dir,file){return LOGO_BASE+encodeURIComponent(dir)+'/'+encodeURIComponent(file)+'.png'}
+function tsdbURL(id){return 'https://images.weserv.nl/?url=r2.thesportsdb.com/images/media/team/badge/'+id+'&w=160'}
+/* club entry: [display name, abbr, color1, color2, logo file] */
+var LEAGUES={
+'Ngoại hạng Anh':{dir:'England - Premier League',clubs:[
+['Arsenal','ARS','#EF0107','#023474','Arsenal FC'],
+['Aston Villa','AVL','#670E36','#95BFE5','Aston Villa'],
+['Chelsea','CHE','#034694','#DBA111','Chelsea FC'],
+['Liverpool','LIV','#C8102E','#F6EB61','Liverpool FC'],
+['Man City','MCI','#6CABDD','#1C2C5B','Manchester City'],
+['Man United','MUN','#DA291C','#FBE122','Manchester United'],
+['Newcastle','NEW','#241F20','#41B6E6','Newcastle United'],
+['Tottenham','TOT','#132257','#FFFFFF','Tottenham Hotspur'],
+['West Ham','WHU','#7A263A','#1BB1E7','West Ham United'],
+['Everton','EVE','#003399','#FFFFFF','Everton FC'],
+['Brighton','BHA','#0057B8','#FFCD00','Brighton & Hove Albion'],
+['Crystal Palace','CRY','#1B458F','#C4122E','Crystal Palace'],
+['Nottingham Forest','NFO','#DD0000','#FFFFFF','Nottingham Forest'],
+['Fulham','FUL','#000000','#CC0000','Fulham FC'],
+['Brentford','BRE','#E30613','#FBB800','Brentford FC'],
+['Wolves','WOL','#FDB913','#231F20','Wolverhampton Wanderers'],
+['Bournemouth','BOU','#DA291C','#000000','AFC Bournemouth'],
+['Leeds United','LEE','#1D428A','#FFCD00','Leeds United'],
+['Burnley','BUR','#6C1D45','#99D6EA','Burnley FC'],
+['Sunderland','SUN','#EB172B','#FFFFFF','Sunderland AFC']]},
+'La Liga':{dir:'Spain - LaLiga',clubs:[
+['Real Madrid','RMA','#FEBE10','#00529F','Real Madrid'],
+['Barcelona','BAR','#A50044','#004D98','FC Barcelona'],
+['Atlético Madrid','ATM','#CB3524','#262E62','Atlético de Madrid'],
+['Sevilla','SEV','#D8091F','#FFFFFF','Sevilla FC'],
+['Valencia','VAL','#EE3524','#000000','Valencia CF'],
+['Villarreal','VIL','#FFE667','#005187','Villarreal CF'],
+['Real Sociedad','RSO','#0067B1','#FFFFFF','Real Sociedad'],
+['Athletic Bilbao','ATH','#EE2523','#FFFFFF','Athletic Bilbao'],
+['Real Betis','BET','#00954C','#FFFFFF','Real Betis Balompié'],
+['Girona','GIR','#CD2534','#FFFFFF','Girona FC'],
+['Celta Vigo','CEL','#8AC3EE','#E5254E','Celta de Vigo'],
+['Espanyol','ESP','#007FC8','#FFFFFF','RCD Espanyol Barcelona'],
+['Rayo Vallecano','RAY','#E53027','#FFFFFF','Rayo Vallecano'],
+['Getafe','GET','#005999','#C43011','Getafe CF'],
+['Osasuna','OSA','#D91A21','#0A346F','CA Osasuna'],
+['Mallorca','MLL','#E20613','#FFE400','RCD Mallorca'],
+['Alavés','ALA','#0761AF','#FFFFFF','Deportivo Alavés'],
+['Levante','LEV','#B4053F','#005CA9','Levante UD'],
+['Elche','ELC','#05642C','#FFFFFF','Elche CF'],
+['Real Oviedo','OVI','#0050A0','#FFFFFF','Real Oviedo']]},
+'Serie A':{dir:'Italy - Serie A',clubs:[
+['Juventus','JUV','#000000','#FFFFFF','Juventus FC'],
+['Inter Milan','INT','#0068A8','#000000','Inter Milan'],
+['AC Milan','MIL','#FB090B','#000000','AC Milan'],
+['Napoli','NAP','#12A0D7','#003C82','SSC Napoli'],
+['AS Roma','ROM','#8E1F2F','#F0BC42','AS Roma'],
+['Lazio','LAZ','#87D8F7','#FFFFFF','SS Lazio'],
+['Atalanta','ATA','#1E71B8','#000000','Atalanta BC'],
+['Fiorentina','FIO','#482E92','#FFFFFF','ACF Fiorentina'],
+['Bologna','BOL','#1A2F48','#A21C26','Bologna FC 1909'],
+['Torino','TOR','#8B1B3A','#FFFFFF','Torino FC'],
+['Udinese','UDI','#000000','#FFFFFF','Udinese Calcio'],
+['Genoa','GEN','#AD1919','#00213B','Genoa CFC'],
+['Cagliari','CAG','#AD002A','#00205B','Cagliari Calcio'],
+['Hellas Verona','VER','#002F6C','#FFD200','Hellas Verona'],
+['Como','COM','#003DA5','#FFFFFF','Como 1907'],
+['Parma','PAR','#FFD520','#034694','Parma Calcio 1913'],
+['Lecce','LEC','#F5C242','#DA291C','US Lecce'],
+['Sassuolo','SAS','#00A752','#000000','US Sassuolo'],
+['Pisa','PIS','#003471','#000000','Pisa Sporting Club'],
+['Cremonese','CRE','#A21C26','#8C8C8C','US Cremonese']]},
+'Bundesliga':{dir:'Germany - Bundesliga',clubs:[
+['Bayern Munich','FCB','#DC052D','#0066B2','Bayern Munich'],
+['Dortmund','BVB','#FDE100','#000000','Borussia Dortmund'],
+['RB Leipzig','RBL','#DD0741','#001F47','RB Leipzig'],
+['Leverkusen','B04','#E32221','#000000','Bayer 04 Leverkusen'],
+['Frankfurt','SGE','#E1000F','#000000','Eintracht Frankfurt'],
+['Stuttgart','VFB','#E32219','#FFFFFF','VfB Stuttgart'],
+['Wolfsburg','WOB','#65B32E','#FFFFFF','VfL Wolfsburg'],
+['Gladbach','BMG','#000000','#00A651','Borussia Mönchengladbach'],
+['Freiburg','SCF','#000000','#DD1F26','SC Freiburg'],
+['Union Berlin','FCU','#EB1923','#FFDD00','1.FC Union Berlin'],
+['Hoffenheim','TSG','#1C63B7','#FFFFFF','TSG 1899 Hoffenheim'],
+['Werder Bremen','SVW','#1D9053','#FFFFFF','SV Werder Bremen'],
+['Augsburg','FCA','#BA3733','#46714D','FC Augsburg'],
+['Mainz 05','M05','#C3141E','#FFFFFF','1.FSV Mainz 05'],
+['1.FC Köln','KOE','#ED1C24','#FFFFFF','1.FC Köln'],
+['St. Pauli','STP','#624737','#E2001A','FC St. Pauli'],
+['Heidenheim','HDH','#003E7E','#E30613','1.FC Heidenheim 1846'],
+['Hamburger SV','HSV','#0A3F86','#FFFFFF','Hamburger SV']]},
+'Ligue 1':{dir:'France - Ligue 1',clubs:[
+['PSG','PSG','#004170','#DA291C','Paris Saint-Germain'],
+['Marseille','OM','#2FAEE0','#FFFFFF','Olympique Marseille'],
+['Lyon','OL','#DA001A','#1A2857','Olympique Lyon'],
+['Monaco','ASM','#E51B22','#FFFFFF','AS Monaco'],
+['Lille','LIL','#E01E13','#000E24','LOSC Lille'],
+['Nice','NIC','#CC0000','#000000','OGC Nice'],
+['Lens','RCL','#FFF200','#EC1C24','RC Lens'],
+['Rennes','REN','#E13327','#000000','Stade Rennais FC'],
+['Strasbourg','RCS','#009FE3','#FFFFFF','RC Strasbourg Alsace'],
+['Nantes','NAN','#FCD405','#008D3F','FC Nantes'],
+['Toulouse','TFC','#5F2380','#FFFFFF','FC Toulouse'],
+['Brest','SB2','#E30613','#FFFFFF','Stade Brestois 29'],
+['Auxerre','AJA','#003D7C','#FFFFFF','AJ Auxerre'],
+['Le Havre','HAC','#009EE0','#1B3F94','Le Havre AC'],
+['Angers','SCO','#000000','#FFFFFF','Angers SCO'],
+['Metz','MET','#7C2230','#FFFFFF','FC Metz'],
+['Lorient','FCL','#FF6600','#000000','FC Lorient'],
+['Paris FC','PFC','#003A70','#FFFFFF','Paris FC']]},
+'V-League':{dir:'TSDB',clubs:[
+['Hà Nội FC','HAN','#5A2D82','#FFFFFF','k3b9md1616505697.png'],
+['Công An Hà Nội','CAH','#C8102E','#FBE122','bwld2x1755751111.png'],
+['Thể Công Viettel','TCV','#DA291C','#FFFFFF','3upbpq1616505726.png'],
+['HAGL','HAG','#00723F','#FDB913','mkfgbz1755751558.png'],
+['Nam Định','NDI','#F2A900','#8B4513','6sxhhm1756533481.png'],
+['Hải Phòng','HPH','#D50000','#FFFFFF','shbwss1644249575.png'],
+['Thanh Hóa','THO','#FF6F00','#000000','qyrfpv1755751254.png'],
+['SLNA','SLN','#F9A825','#5D4037','y93jh41642709143.png'],
+['Becamex HCM','BCM','#7B1FA2','#FFD700','7jfvre1616505757.png']]}
+};
+function clubSrc(lg,c){return lg.dir==='TSDB'?tsdbURL(c[4]):clubURL(lg.dir,c[4])}
+var COUNTRIES=[['vn','Việt Nam'],['th','Thái Lan'],['id','Indonesia'],['my','Malaysia'],['sg','Singapore'],['ph','Philippines'],['mm','Myanmar'],['kh','Campuchia'],['la','Lào'],['jp','Nhật Bản'],['kr','Hàn Quốc'],['cn','Trung Quốc'],['kp','Triều Tiên'],['au','Úc'],['sa','Ả Rập Xê Út'],['ir','Iran'],['iq','Iraq'],['qa','Qatar'],['ae','UAE'],['uz','Uzbekistan'],['jo','Jordan'],['om','Oman'],['bh','Bahrain'],['kw','Kuwait'],['in','Ấn Độ'],['br','Brazil'],['ar','Argentina'],['uy','Uruguay'],['co','Colombia'],['cl','Chile'],['pe','Peru'],['ec','Ecuador'],['py','Paraguay'],['ve','Venezuela'],['bo','Bolivia'],['mx','Mexico'],['us','Mỹ'],['ca','Canada'],['cr','Costa Rica'],['pa','Panama'],['jm','Jamaica'],['hn','Honduras'],['fr','Pháp'],['de','Đức'],['es','Tây Ban Nha'],['it','Ý'],['gb-eng','Anh'],['gb-sct','Scotland'],['gb-wls','Wales'],['nl','Hà Lan'],['pt','Bồ Đào Nha'],['be','Bỉ'],['hr','Croatia'],['rs','Serbia'],['ch','Thụy Sĩ'],['pl','Ba Lan'],['dk','Đan Mạch'],['se','Thụy Điển'],['no','Na Uy'],['at','Áo'],['cz','Séc'],['ua','Ukraine'],['tr','Thổ Nhĩ Kỳ'],['gr','Hy Lạp'],['hu','Hungary'],['ro','Romania'],['sk','Slovakia'],['si','Slovenia'],['ru','Nga'],['ie','Ireland'],['is','Iceland'],['fi','Phần Lan'],['al','Albania'],['ge','Georgia'],['ma','Ma-rốc'],['sn','Senegal'],['ng','Nigeria'],['gh','Ghana'],['cm','Cameroon'],['ci','Bờ Biển Ngà'],['eg','Ai Cập'],['dz','Algeria'],['tn','Tunisia'],['za','Nam Phi'],['ml','Mali'],['nz','New Zealand']];
+var PALETTE=['#ef4444','#3b82f6','#22c55e','#f59e0b','#a855f7','#06b6d4','#f43f5e','#84cc16'];
+
+function flagURL(code){return 'https://flagcdn.com/w160/'+code+'.png'}
+function badgeSVG(abbr,c1,c2){
+  var s='<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+c1+'"/><stop offset="1" stop-color="'+c2+'"/></linearGradient></defs><circle cx="64" cy="64" r="60" fill="url(#g)" stroke="#ffffff" stroke-width="5"/><text x="64" y="64" font-family="Arial,Helvetica,sans-serif" font-size="40" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="central" stroke="rgba(0,0,0,0.35)" stroke-width="3" style="paint-order:stroke">'+abbr+'</text></svg>';
+  return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s).replace(/'/g,'%27');
+}
+function initials(name){
+  var w=(name||'').trim().split(/\s+/).filter(Boolean);
+  if(!w.length)return '?';
+  if(w.length===1)return w[0].slice(0,3).toUpperCase();
+  return w.slice(0,3).map(function(x){return x[0]}).join('').toUpperCase();
+}
+
+/* ================= STATE ================= */
+var KEY='bracketAppV2',HKEY='bracketHistV1';
+var S=load()||defaultState(8);
+
+function defaultState(size,keepMgr){
+  return {v:2,name:'GIẢI ĐẤU CỦA TÔI',size:size,third:false,
+    mgrOn:keepMgr?S.mgrOn:false,
+    mgrA:keepMgr&&S.mgrA?S.mgrA:'HLV A',
+    mgrB:keepMgr&&S.mgrB?S.mgrB:'HLV B',
+    note:'',histId:null,
+    teams:new Array(size).fill(null),
+    rounds:buildRounds(size),
+    tp:emptyMatch()};
+}
+function emptyMatch(){return {a:null,b:null,sa:null,sb:null,pa:null,pb:null}}
+function buildRounds(size){
+  var rs=[],c=size/2,r=0;
+  while(c>=1){
+    var arr=[];
+    for(var m=0;m<c;m++){
+      var M=emptyMatch();
+      if(r===0){M.a=2*m;M.b=2*m+1}
+      arr.push(M);
+    }
+    rs.push(arr);c=c/2;r++;
+  }
+  return rs;
+}
+var SHARED=false;
+function save(){if(SHARED)return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function load(){
+  try{
+    var s=localStorage.getItem(KEY);
+    if(s)return JSON.parse(s);
+    var o=localStorage.getItem('bracketAppV1');
+    if(o){o=JSON.parse(o);o.v=2;o.mgrOn=false;o.mgrA='HLV A';o.mgrB='HLV B';o.note='';o.histId=null;return o}
+  }catch(e){}
+  return null;
+}
+function loadHist(){try{var h=localStorage.getItem(HKEY);return h?JSON.parse(h):[]}catch(e){return []}}
+function saveHist(h){localStorage.setItem(HKEY,JSON.stringify(h))}
+
+function tOK(s,i){return i!=null&&s.teams[i]!=null}
+function wOf(s,M){
+  if(!tOK(s,M.a)||!tOK(s,M.b))return null;
+  if(M.sa==null||M.sb==null)return null;
+  if(M.sa>M.sb)return M.a;
+  if(M.sb>M.sa)return M.b;
+  if(M.pa==null||M.pb==null)return null;
+  if(M.pa>M.pb)return M.a;
+  if(M.pb>M.pa)return M.b;
+  return null;
+}
+function teamOK(i){return tOK(S,i)}
+function winnerOf(M){return wOf(S,M)}
+function loserOf(M){var w=winnerOf(M);if(w==null)return null;return w===M.a?M.b:M.a}
+function propagate(){
+  var R=S.rounds;
+  for(var r=0;r<R.length-1;r++){
+    for(var m=0;m<R[r].length;m++){
+      var w=winnerOf(R[r][m]);
+      var T=R[r+1][m>>1],slot=(m%2)?'b':'a';
+      if(T[slot]!==w){T[slot]=w;T.sa=T.sb=T.pa=T.pb=null}
+    }
+  }
+  if(R.length>=2){
+    var semis=R[R.length-2];
+    ['a','b'].forEach(function(slot,i){
+      var l=loserOf(semis[i]);
+      if(S.tp[slot]!==l){S.tp[slot]=l;S.tp.sa=S.tp.sb=S.tp.pa=S.tp.pb=null}
+    });
+  }
+}
+function hasResults(){
+  return S.rounds.some(function(r){return r.some(function(M){return M.sa!=null||M.sb!=null})});
+}
+function roundLabel(cnt){
+  if(cnt===2)return 'Chung kết';
+  if(cnt===4)return 'Bán kết';
+  if(cnt===8)return 'Tứ kết';
+  if(cnt===16)return 'Vòng 1/8';
+  return 'Vòng 1/16';
+}
+function sideOf(i){return i<S.size/2?'A':'B'}
+function mgrOfIdx(s,i){return i<s.size/2?(s.mgrA||'HLV A'):(s.mgrB||'HLV B')}
+
+/* ================= HELPERS ================= */
+function $(s){return document.querySelector(s)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function logoHTML(team,cls){
+  cls=cls||'lg';
+  if(!team)return '<div class="'+cls+'">?</div>';
+  var L=team.logo||{};
+  var extra=L.type==='flag'?' flag':'';
+  if(L.src){
+    var fb=L.fb?' onerror="this.onerror=null;this.src=\''+L.fb+'\'"':'';
+    return '<div class="'+cls+extra+'"><img src="'+esc(L.src)+'" loading="lazy"'+fb+'/></div>';
+  }
+  return '<div class="'+cls+'">'+esc(initials(team.name))+'</div>';
+}
+function sdHTML(idx){
+  if(!S.mgrOn||idx==null)return '';
+  var sd=sideOf(idx);
+  return '<span class="sd '+sd.toLowerCase()+'">'+sd+'</span>';
+}
+function closeOv(id){$('#'+id).classList.remove('show')}
+function showView(v){
+  ['setup','bracket','stats','hist'].forEach(function(k){
+    var m={setup:'setupView',bracket:'bracketView',stats:'statsView',hist:'histView'}[k];
+    $('#'+m).style.display=k===v?'':'none';
+    $('#tab-'+k).classList.toggle('on',k===v);
+  });
+  $('#fabExp').style.display=v==='bracket'?'':'none';
+  if(v==='bracket')renderBracket();
+  if(v==='stats')renderStats();
+  if(v==='hist')renderHist();
+}
+
+/* ================= SETUP VIEW ================= */
+function renderSetup(){
+  $('#tName').value=S.name;
+  $('#szSel').value=String(S.size);
+  $('#thirdCk').checked=!!S.third;
+  $('#mgrCk').checked=!!S.mgrOn;
+  $('#mgrAIn').value=S.mgrA||'';
+  $('#mgrBIn').value=S.mgrB||'';
+  $('#mgrNames').style.display=S.mgrOn?'':'none';
+  $('#mgrHint').style.display=S.mgrOn?'':'none';
+  var h='';
+  for(var i=0;i<S.size;i++){
+    if(S.mgrOn&&i===0)h+='<div class="grpHead a">🔵 Bên A — '+esc(S.mgrA||'HLV A')+'</div>';
+    if(S.mgrOn&&i===S.size/2)h+='<div class="grpHead b">🔴 Bên B — '+esc(S.mgrB||'HLV B')+'</div>';
+    var t=S.teams[i];
+    h+='<div class="slot"><div class="idx">'+(i+1)+'</div>'+logoHTML(t)+
+       '<input class="nm" placeholder="Nhập tên đội..." value="'+esc(t?t.name:'')+'" oninput="nameEdit('+i+',this.value)"/>'+
+       '<button class="pick" onclick="openPicker('+i+')">Logo</button>'+
+       (t?'<button class="del" onclick="removeTeam('+i+')">✕</button>':'')+
+       '</div>';
+  }
+  $('#slots').innerHTML=h;
+}
+function nameEdit(i,v){
+  v=v.trim();
+  if(!S.teams[i]){
+    if(!v)return;
+    S.teams[i]={name:v,logo:{type:'badge',src:badgeSVG(initials(v),PALETTE[i%PALETTE.length],'#1e293b')}};
+  }else{
+    S.teams[i].name=v||('Đội '+(i+1));
+    if(S.teams[i].logo.type==='badge')S.teams[i].logo.src=badgeSVG(initials(S.teams[i].name),PALETTE[i%PALETTE.length],'#1e293b');
+  }
+  propagate();save();
+}
+function removeTeam(i){S.teams[i]=null;propagate();save();renderSetup()}
+function changeSize(v){
+  var n=parseInt(v,10);
+  if(hasResults()&&!confirm('Đổi số đội sẽ xóa toàn bộ kết quả. Tiếp tục?')){$('#szSel').value=String(S.size);return}
+  var old=S.teams;
+  S.size=n;
+  S.teams=new Array(n).fill(null);
+  for(var i=0;i<Math.min(old.length,n);i++)S.teams[i]=old[i];
+  S.rounds=buildRounds(n);S.tp=emptyMatch();
+  propagate();save();renderSetup();
+}
+function toggleThird(v){S.third=v;save()}
+function toggleMgr(v){
+  S.mgrOn=v;
+  if(v&&!hasResults())drawLots();
+  save();renderSetup();
+}
+function mgrName(sd,v){
+  if(sd==='A')S.mgrA=v.trim()||'HLV A';else S.mgrB=v.trim()||'HLV B';
+  save();
+  var i0=sd==='A'?0:S.size/2;
+  var el=document.querySelectorAll('.grpHead')[sd==='A'?0:1];
+  if(el)el.innerHTML=(sd==='A'?'🔵 Bên A — ':'🔴 Bên B — ')+esc(sd==='A'?S.mgrA:S.mgrB);
+}
+function shuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}}
+function drawLots(){
+  var n=S.size,i;
+  S.rounds=buildRounds(n);S.tp=emptyMatch();
+  var R0=S.rounds[0];
+  if(S.mgrOn){
+    var A=[],B=[];
+    for(i=0;i<n/2;i++)A.push(i);
+    for(i=n/2;i<n;i++)B.push(i);
+    shuf(A);shuf(B);
+    for(i=0;i<n/2;i++){
+      if(Math.random()<0.5){R0[i].a=A[i];R0[i].b=B[i]}
+      else{R0[i].a=B[i];R0[i].b=A[i]}
+    }
+  }else{
+    var idx=[];
+    for(i=0;i<n;i++)idx.push(i);
+    shuf(idx);
+    for(i=0;i<n/2;i++){R0[i].a=idx[2*i];R0[i].b=idx[2*i+1]}
+  }
+  propagate();save();
+}
+function shuffleTeams(){
+  if(hasResults()&&!confirm('Bốc thăm lại sẽ xóa kết quả hiện tại. Tiếp tục?'))return;
+  drawLots();
+  renderSetup();
+  alert(S.mgrOn?'Đã bốc thăm! Vòng 1: mỗi trận đều là Bên A đấu Bên B.':'Đã bốc thăm ngẫu nhiên!');
+}
+function clearResults(){
+  if(!confirm('Xóa toàn bộ tỉ số? (giữ nguyên cặp đấu đã bốc thăm)'))return;
+  S.rounds.forEach(function(r){r.forEach(function(M){M.sa=M.sb=M.pa=M.pb=null})});
+  S.tp.sa=S.tp.sb=S.tp.pa=S.tp.pb=null;
+  propagate();save();renderSetup();
+}
+function resetAll(){
+  if(!confirm('Tạo giải đấu mới? (Lịch sử đã lưu không bị mất)'))return;
+  S=defaultState(8,true);save();renderSetup();showView('setup');
+}
+$('#tName').addEventListener('input',function(){S.name=this.value||'GIẢI ĐẤU';save()});
+
+/* ================= TEAM PICKER ================= */
+var pickIdx=-1;
+function openPicker(i){
+  pickIdx=i;
+  $('#pickPos').textContent='#'+(i+1);
+  var t=S.teams[i];
+  $('#cuName').value=t?t.name:'';
+  $('#cuAbbr').value=t?initials(t.name):'';
+  $('#pickOv').classList.add('show');
+  pickTab(0);
+}
+function pickTab(n){
+  for(var i=0;i<3;i++){
+    $('#pt'+i).classList.toggle('on',i===n);
+    $('#pTab'+i).style.display=i===n?'':'none';
+  }
+  if(n===0)renderClubs();
+  if(n===1)renderCountries();
+}
+function renderClubs(){
+  var sel=$('#lgSel');
+  if(!sel.options.length){
+    Object.keys(LEAGUES).forEach(function(k){
+      var o=document.createElement('option');o.value=k;o.textContent=k;sel.appendChild(o);
+    });
+  }
+  var lgName=sel.value||Object.keys(LEAGUES)[0];
+  var lg=LEAGUES[lgName],h='';
+  lg.clubs.forEach(function(c,i){
+    var src=clubSrc(lg,c),fb=badgeSVG(c[1],c[2],c[3]);
+    h+='<div class="cell" onclick="pickClub(this)" data-lg="'+esc(lgName)+'" data-i="'+i+'">'+
+       '<div class="lg"><img src="'+esc(src)+'" loading="lazy" onerror="this.onerror=null;this.src=\''+fb+'\'"/></div>'+
+       '<div class="cn">'+esc(c[0])+'</div></div>';
+  });
+  $('#clubGrid').innerHTML=h;
+}
+function pickClub(el){
+  var lg=LEAGUES[el.getAttribute('data-lg')],c=lg.clubs[parseInt(el.getAttribute('data-i'),10)];
+  applyPick({name:c[0],logo:{type:'club',src:clubSrc(lg,c),fb:badgeSVG(c[1],c[2],c[3])}});
+}
+function renderCountries(){
+  var q=($('#ctySrch').value||'').toLowerCase();
+  var h='';
+  COUNTRIES.forEach(function(c,i){
+    if(q&&c[1].toLowerCase().indexOf(q)<0)return;
+    h+='<div class="cell" onclick="pickCountry('+i+')"><div class="lg flag"><img src="'+flagURL(c[0])+'" loading="lazy"/></div><div class="cn">'+esc(c[1])+'</div></div>';
+  });
+  $('#ctyGrid').innerHTML=h||'<div class="empty">Không tìm thấy</div>';
+}
+function pickCountry(i){
+  var c=COUNTRIES[i];
+  applyPick({name:c[1],logo:{type:'flag',src:flagURL(c[0])}});
+}
+function applyCustomBadge(){
+  var nm=$('#cuName').value.trim()||'Đội '+(pickIdx+1);
+  var ab=($('#cuAbbr').value.trim()||initials(nm)).toUpperCase();
+  applyPick({name:nm,logo:{type:'badge2',src:badgeSVG(ab,$('#cuC1').value,$('#cuC2').value)}});
+}
+function handleFile(e){
+  var f=e.target.files[0];if(!f)return;
+  var img=new Image();
+  img.onload=function(){
+    var c=document.createElement('canvas'),s=160;c.width=c.height=s;
+    var x=c.getContext('2d');
+    var m=Math.min(img.width,img.height);
+    x.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,s,s);
+    var nm=$('#cuName').value.trim()||(S.teams[pickIdx]?S.teams[pickIdx].name:'Đội '+(pickIdx+1));
+    applyPick({name:nm,logo:{type:'img',src:c.toDataURL('image/png')}});
+    URL.revokeObjectURL(img.src);
+  };
+  img.src=URL.createObjectURL(f);
+  e.target.value='';
+}
+function applyPick(team){
+  if(pickIdx<0)return;
+  S.teams[pickIdx]=team;
+  propagate();save();
+  closeOv('pickOv');
+  renderSetup();
+}
+
+/* ================= BRACKET VIEW ================= */
+function scoreTxt(M,side){
+  var s=side==='a'?M.sa:M.sb;
+  return s==null?'·':s;
+}
+function penTxt(M,side){
+  if(M.sa==null||M.sb==null||M.sa!==M.sb)return '';
+  var p=side==='a'?M.pa:M.pb;
+  return p==null?'':'('+p+')';
+}
+function trowHTML(M,side){
+  var idx=side==='a'?M.a:M.b;
+  var t=teamOK(idx)?S.teams[idx]:null;
+  var w=winnerOf(M);
+  var isWin=w!=null&&w===idx;
+  return '<div class="trow'+(isWin?' win':'')+'">'+logoHTML(t)+
+    '<span class="nm">'+esc(t?t.name:'—')+'</span>'+(t?sdHTML(idx):'')+
+    '<span class="pn">'+penTxt(M,side)+'</span>'+
+    '<span class="sc">'+scoreTxt(M,side)+'</span></div>';
+}
+function renderBracket(){
+  var R=S.rounds,h='';
+  for(var r=0;r<R.length;r++){
+    h+='<div class="col"><div class="colT">'+roundLabel(R[r].length*2)+'</div><div class="colBody">';
+    for(var m=0;m<R[r].length;m++){
+      var M=R[r][m];
+      h+='<div class="match'+(winnerOf(M)!=null?' done':'')+'" onclick="openScore('+r+','+m+')">'+trowHTML(M,'a')+trowHTML(M,'b')+'</div>';
+    }
+    if(r===R.length-1&&S.third){
+      h+='<div class="tpbox"><div class="tpT">🥉 Tranh hạng 3</div>'+
+         '<div class="match'+(winnerOf(S.tp)!=null?' done':'')+'" onclick="openScore(-1,0)">'+trowHTML(S.tp,'a')+trowHTML(S.tp,'b')+'</div></div>';
+    }
+    h+='</div></div>';
+  }
+  $('#cols').innerHTML=h;
+  var fin=R[R.length-1][0],w=winnerOf(fin);
+  var ch='';
+  if(w!=null){
+    ch='<div class="champ">'+logoHTML(S.teams[w])+'<div><div class="t1">🏆 Vô địch</div><div class="t2">'+esc(S.teams[w].name)+'</div>';
+    if(S.mgrOn)ch+='<div class="t3">🎖️ HLV chiến thắng: '+esc(mgrOfIdx(S,w))+'</div>';
+    ch+='</div></div>';
+  }
+  $('#champBox').innerHTML=ch;
+}
+
+/* ================= SCORE MODAL ================= */
+var cur=null;
+function getMatch(r,m){return r<0?S.tp:S.rounds[r][m]}
+function openScore(r,m){
+  var M=getMatch(r,m);
+  if(!teamOK(M.a)||!teamOK(M.b)){alert('Trận này chưa đủ 2 đội.');return}
+  cur={r:r,m:m};
+  var A=S.teams[M.a],B=S.teams[M.b];
+  $('#scTitle').textContent=r<0?'🥉 Tranh hạng 3':roundLabel(S.rounds[r].length*2);
+  $('#scLgA').innerHTML=logoHTML(A);$('#scNmA').textContent=A.name;
+  $('#scLgB').innerHTML=logoHTML(B);$('#scNmB').textContent=B.name;
+  $('#inSA').value=M.sa==null?'':M.sa;$('#inSB').value=M.sb==null?'':M.sb;
+  $('#inPA').value=M.pa==null?'':M.pa;$('#inPB').value=M.pb==null?'':M.pb;
+  penCheck();
+  $('#scoreOv').classList.add('show');
+}
+function numVal(id){
+  var v=$('#'+id).value.replace(/\D/g,'');
+  return v===''?null:Math.min(99,parseInt(v,10));
+}
+function penCheck(){
+  var a=numVal('inSA'),b=numVal('inSB');
+  $('#penBox').classList.toggle('show',a!=null&&b!=null&&a===b);
+}
+function saveScore(){
+  if(!cur)return;
+  var M=getMatch(cur.r,cur.m);
+  M.sa=numVal('inSA');M.sb=numVal('inSB');
+  if(M.sa!=null&&M.sb!=null&&M.sa===M.sb){
+    M.pa=numVal('inPA');M.pb=numVal('inPB');
+    if(M.pa!=null&&M.pb!=null&&M.pa===M.pb){alert('Luân lưu không thể hòa — hãy nhập tỉ số quyết định.');return}
+    if(M.pa==null||M.pb==null){alert('Hai đội hòa — nhập kết quả luân lưu 11m để xác định đội thắng.');return}
+  }else{M.pa=null;M.pb=null}
+  propagate();save();
+  closeOv('scoreOv');
+  renderBracket();
+}
+function clearMatch(){
+  if(!cur)return;
+  var M=getMatch(cur.r,cur.m);
+  M.sa=M.sb=M.pa=M.pb=null;
+  propagate();save();
+  closeOv('scoreOv');
+  renderBracket();
+}
+
+/* ================= HISTORY ================= */
+function saveToHistory(){
+  var fin=S.rounds[S.rounds.length-1][0];
+  if(winnerOf(fin)==null&&!confirm('Giải chưa có nhà vô địch. Vẫn lưu vào lịch sử?'))return;
+  var h=loadHist();
+  try{
+    if(S.histId){
+      var i=-1;
+      for(var k=0;k<h.length;k++)if(h[k].id===S.histId){i=k;break}
+      if(i>=0){
+        h[i].snap=JSON.parse(JSON.stringify(S));
+        h[i].date=new Date().toISOString();
+        saveHist(h);
+        alert('✅ Đã cập nhật giải này trong lịch sử.');
+        return;
+      }
+    }
+    var id='h'+Date.now()+Math.floor(Math.random()*1000);
+    S.histId=id;save();
+    h.unshift({id:id,date:new Date().toISOString(),snap:JSON.parse(JSON.stringify(S))});
+    saveHist(h);
+    alert('✅ Đã lưu vào lịch sử! Xem tab 🗂 Lịch sử và 📊 Thống kê.');
+  }catch(e){alert('Không lưu được (bộ nhớ đầy?). Hãy xóa bớt giải cũ trong Lịch sử.')}
+}
+function snapInfo(s){
+  var fin=s.rounds[s.rounds.length-1][0];
+  var w=wOf(s,fin);
+  var champ=w!=null?s.teams[w]:null;
+  var ru=w!=null?s.teams[w===fin.a?fin.b:fin.a]:null;
+  var mgr=(w!=null&&s.mgrOn)?mgrOfIdx(s,w):null;
+  return {champ:champ,ru:ru,mgr:mgr};
+}
+function renderHist(){
+  var h=loadHist();
+  if(!h.length){$('#histBody').innerHTML='<div class="empty">Chưa có giải nào được lưu.<br/>Vào tab 🏆 Sơ đồ và nhấn <b>💾 Lưu vào lịch sử</b> khi giải kết thúc.</div>';return}
+  var out='';
+  h.forEach(function(e){
+    var s=e.snap,info=snapInfo(s);
+    var d=new Date(e.date);
+    out+='<div class="panel hitem">'+
+      '<div class="hd"><b>'+esc(s.name)+'</b><span>'+d.toLocaleDateString('vi-VN')+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+'</span></div>';
+    if(info.champ){
+      out+='<div class="ln">'+logoHTML(info.champ)+'<span>🏆 Vô địch: <b>'+esc(info.champ.name)+'</b></span></div>';
+      if(info.ru)out+='<div class="ln">'+logoHTML(info.ru)+'<span>🥈 Á quân: '+esc(info.ru.name)+'</span></div>';
+      if(info.mgr)out+='<div class="ln"><span>🎖️ HLV chiến thắng: <b>'+esc(info.mgr)+'</b></span></div>';
+    }else{
+      out+='<div class="ln"><span>⏳ Giải chưa kết thúc ('+s.size+' đội)</span></div>';
+    }
+    if(s.note)out+='<div class="note">📝 '+esc(s.note)+'</div>';
+    out+='<div class="btnRow" style="margin-top:8px">'+
+      '<button onclick="openHist(\''+e.id+'\')">📂 Mở lại</button>'+
+      '<button class="warn" onclick="delHist(\''+e.id+'\')">🗑 Xóa</button></div></div>';
+  });
+  $('#histBody').innerHTML=out;
+}
+function openHist(id){
+  var h=loadHist(),e=null;
+  for(var i=0;i<h.length;i++)if(h[i].id===id){e=h[i];break}
+  if(!e)return;
+  if(!confirm('Mở lại giải "'+e.snap.name+'"? Giải hiện tại sẽ bị thay thế (nên lưu trước nếu cần).'))return;
+  S=JSON.parse(JSON.stringify(e.snap));
+  S.histId=e.id;
+  propagate();save();renderSetup();showView('bracket');
+}
+function delHist(id){
+  if(!confirm('Xóa giải này khỏi lịch sử? Thống kê sẽ tính lại.'))return;
+  var h=loadHist().filter(function(e){return e.id!==id});
+  saveHist(h);
+  if(S.histId===id){S.histId=null;save()}
+  renderHist();
+}
+
+/* ================= STATS ================= */
+function renderStats(){
+  var h=loadHist();
+  if(!h.length){$('#statsBody').innerHTML='<div class="empty">Chưa có dữ liệu.<br/>Lưu ít nhất 1 giải vào 🗂 Lịch sử để xem thống kê.</div>';return}
+  var T={},logos={},mgrs={},nTour=0;
+  h.forEach(function(e){
+    var s=e.snap;nTour++;
+    var ms=[];
+    s.rounds.forEach(function(r){r.forEach(function(M){ms.push(M)})});
+    if(s.third)ms.push(s.tp);
+    ms.forEach(function(M){
+      if(wOf(s,M)==null)return;
+      [[s.teams[M.a],M.sa,M.sb],[s.teams[M.b],M.sb,M.sa]].forEach(function(z){
+        var t=z[0],gf=z[1],ga=z[2];
+        var r=T[t.name]||(T[t.name]={P:0,W:0,D:0,L:0,GF:0,GA:0,Pts:0,C:0,RU:0});
+        logos[t.name]=t.logo;
+        r.P++;r.GF+=gf;r.GA+=ga;
+        if(gf>ga){r.W++;r.Pts+=3}
+        else if(gf<ga){r.L++}
+        else{r.D++;r.Pts+=1}
+      });
+    });
+    var info=snapInfo(s);
+    if(info.champ){
+      T[info.champ.name].C++;
+      if(info.ru)T[info.ru.name].RU++;
+      if(info.mgr)mgrs[info.mgr]=(mgrs[info.mgr]||0)+1;
+    }
+  });
+  var names=Object.keys(T);
+  function tcell(n){return '<div class="tc">'+logoHTML({name:n,logo:logos[n]})+'<span>'+esc(n)+'</span></div>'}
+  var out='';
+  /* honors grouped by manager */
+  var G={};
+  h.forEach(function(e){
+    var s=e.snap,fin=s.rounds[s.rounds.length-1][0],w=wOf(s,fin);
+    if(w==null)return;
+    var ru=w===fin.a?fin.b:fin.a;
+    [[w,'C'],[ru,'RU']].forEach(function(z){
+      var idx=z[0],field=z[1];
+      var key=s.mgrOn?'🎖️ HLV '+mgrOfIdx(s,idx):'⚪ Giải không chia bên';
+      var g=G[key]||(G[key]={C:0,RU:0,teams:{}});
+      var nm=s.teams[idx].name;
+      var t=g.teams[nm]||(g.teams[nm]={C:0,RU:0});
+      t[field]++;g[field]++;
+    });
+  });
+  var gkeys=Object.keys(G);
+  gkeys.sort(function(a,b){return G[b].C-G[a].C||G[b].RU-G[a].RU});
+  out+='<div class="panel"><h3>🏆 Số lần vô địch · á quân — theo từng HLV ('+nTour+' giải đã lưu)</h3>';
+  if(gkeys.length){
+    gkeys.forEach(function(k){
+      var g=G[k];
+      out+='<div class="grpHead" style="color:var(--gold)">'+esc(k)+' — '+g.C+' lần vô địch'+(g.RU?' · '+g.RU+' á quân':'')+'</div>';
+      out+='<table class="tbl"><tr><th class="l">Đội</th><th>🏆 Vô địch</th><th>🥈 Á quân</th></tr>';
+      var tn=Object.keys(g.teams);
+      tn.sort(function(a,b){return g.teams[b].C-g.teams[a].C||g.teams[b].RU-g.teams[a].RU});
+      tn.forEach(function(n){
+        out+='<tr><td class="l">'+tcell(n)+'</td><td style="color:var(--gold);font-weight:900">'+(g.teams[n].C||'')+'</td><td>'+(g.teams[n].RU||'')+'</td></tr>';
+      });
+      out+='</table>';
+    });
+  }else out+='<div class="empty">Chưa có giải nào kết thúc.</div>';
+  out+='</div>';
+  /* managers */
+  var mnames=Object.keys(mgrs);
+  if(mnames.length){
+    mnames.sort(function(a,b){return mgrs[b]-mgrs[a]});
+    out+='<div class="panel"><h3>🎖️ HLV chiến thắng</h3><table class="tbl"><tr><th class="l">HLV</th><th>Số lần thắng</th></tr>';
+    mnames.forEach(function(n){
+      out+='<tr><td class="l" style="font-weight:800">'+esc(n)+'</td><td style="color:var(--gold);font-weight:900">'+mgrs[n]+'</td></tr>';
+    });
+    out+='</table></div>';
+  }
+  /* leaderboard */
+  names.sort(function(a,b){
+    return T[b].Pts-T[a].Pts||(T[b].GF-T[b].GA)-(T[a].GF-T[a].GA)||T[b].GF-T[a].GF;
+  });
+  out+='<div class="panel"><h3>📊 Bảng xếp hạng cộng dồn (T=3đ · H=1đ · B=0đ)</h3>'+
+    '<table class="tbl"><tr><th>#</th><th class="l">Đội</th><th>Tr</th><th>T</th><th>H</th><th>B</th><th>BT</th><th>BB</th><th>Điểm</th></tr>';
+  names.forEach(function(n,i){
+    var r=T[n];
+    out+='<tr><td>'+(i+1)+'</td><td class="l">'+tcell(n)+'</td><td>'+r.P+'</td><td>'+r.W+'</td><td>'+r.D+'</td><td>'+r.L+'</td><td>'+r.GF+'</td><td>'+r.GA+'</td><td class="pts">'+r.Pts+'</td></tr>';
+  });
+  out+='</table></div>';
+  $('#statsBody').innerHTML=out;
+}
+
+/* ================= EXPORT IMAGE ================= */
+var expBlob=null,expURL='';
+function rr(x,a,b,w,h,r){
+  x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();
+}
+function fit(x,t,max){
+  if(x.measureText(t).width<=max)return t;
+  while(t.length>1&&x.measureText(t+'…').width>max)t=t.slice(0,-1);
+  return t+'…';
+}
+function wrapNote(x,txt,maxW){
+  var out=[],lines=String(txt).split('\n');
+  lines.forEach(function(ln){
+    var words=ln.split(' '),curLn='';
+    words.forEach(function(w){
+      var t=curLn?curLn+' '+w:w;
+      if(x.measureText(t).width>maxW&&curLn){out.push(curLn);curLn=w}
+      else curLn=t;
+    });
+    out.push(curLn);
+  });
+  return out.slice(0,4);
+}
+function loadImg(src){
+  return new Promise(function(res){
+    var im=new Image();im.crossOrigin='anonymous';
+    im.onload=function(){res(im)};im.onerror=function(){res(null)};
+    im.src=src;
+  });
+}
+function openNote(){
+  $('#noteTx').value=S.note||'';
+  $('#noteOv').classList.add('show');
+}
+function doExport(){
+  S.note=$('#noteTx').value.trim();
+  save();
+  closeOv('noteOv');
+  exportImage();
+}
+async function exportImage(){
+  var fab=$('#fabExp');fab.textContent='⏳ Đang tạo...';fab.disabled=true;
+  try{
+    var jobs=[],imgs={};
+    S.teams.forEach(function(t){
+      if(!t||!t.logo||!t.logo.src)return;
+      var L=t.logo;
+      if(imgs[L.src]!==undefined)return;
+      imgs[L.src]=null;
+      jobs.push(loadImg(L.src).then(function(im){
+        if(im){imgs[L.src]=im;return}
+        if(L.fb)return loadImg(L.fb).then(function(f){imgs[L.src]=f});
+      }));
+    });
+    await Promise.all(jobs);
+    var url=drawBracket(imgs);
+    $('#expImg').src=url;
+    $('#expOv').classList.add('show');
+  }catch(e){alert('Lỗi xuất ảnh: '+e.message)}
+  fab.textContent='📸 Xuất ảnh';fab.disabled=false;
+}
+function drawLogo(x,imgs,t,cx,cy,r){
+  var im=t&&t.logo&&imgs[t.logo.src];
+  if(im&&t.logo.type==='flag'){
+    var fw=r*2.3,fh=fw*0.72;
+    x.save();rr(x,cx-fw/2,cy-fh/2,fw,fh,4);x.clip();
+    x.drawImage(im,cx-fw/2,cy-fh/2,fw,fh);x.restore();
+    x.strokeStyle='rgba(255,255,255,.25)';x.lineWidth=1;
+    rr(x,cx-fw/2,cy-fh/2,fw,fh,4);x.stroke();
+    return;
+  }
+  if(im){
+    var ar=im.width/im.height,dw=r*2,dh=r*2;
+    if(ar>1)dh=dw/ar;else dw=dh*ar;
+    x.drawImage(im,cx-dw/2,cy-dh/2,dw,dh);
+    return;
+  }
+  x.save();x.beginPath();x.arc(cx,cy,r,0,7);x.clip();
+  x.fillStyle='#22314e';x.fillRect(cx-r,cy-r,r*2,r*2);
+  x.fillStyle='#9db4d6';x.font='800 '+Math.round(r*0.75)+'px Arial';
+  x.textAlign='center';x.textBaseline='middle';
+  x.fillText(t?initials(t.name):'?',cx,cy+1);
+  x.restore();
+}
+function drawRow(x,imgs,X,Y,w,M,side){
+  var idx=side==='a'?M.a:M.b;
+  var t=teamOK(idx)?S.teams[idx]:null;
+  var win=winnerOf(M)!=null&&winnerOf(M)===idx;
+  if(win){x.fillStyle='rgba(34,197,94,.12)';x.fillRect(X,Y-21,w,42)}
+  drawLogo(x,imgs,t,X+26,Y,15);
+  x.textAlign='left';x.textBaseline='middle';
+  x.font=(win?'800':'600')+' 15px -apple-system,Segoe UI,Arial';
+  x.fillStyle=win?'#e6edf7':'#8fa3c0';
+  var name=t?t.name:'—';
+  var pen=penTxt(M,side);
+  var scoreW=34,penW=pen?34:0,sdW=(S.mgrOn&&t)?20:0;
+  var nm=fit(x,name,w-56-scoreW-penW-sdW-14);
+  x.fillText(nm,X+48,Y+1);
+  if(S.mgrOn&&t){
+    var sd=sideOf(idx);
+    var nw=x.measureText(nm).width;
+    x.fillStyle=sd==='A'?'#60a5fa':'#f87171';
+    x.font='900 11px Arial';
+    x.fillText(sd,X+52+nw,Y+1);
+  }
+  x.textAlign='right';
+  if(pen){x.font='700 12px Arial';x.fillStyle='#fbbf24';x.fillText(pen,X+w-40,Y+1)}
+  x.font='900 17px Arial';
+  x.fillStyle=win?'#22c55e':'#8fa3c0';
+  x.fillText(String(scoreTxt(M,side)),X+w-12,Y+1);
+}
+function drawBox(x,imgs,X,Y,w,M){
+  x.fillStyle='#151f33';
+  rr(x,X,Y-43,w,86,10);x.fill();
+  x.strokeStyle=winnerOf(M)!=null?'#2f4d35':'#2a3a55';x.lineWidth=1.4;
+  rr(x,X,Y-43,w,86,10);x.stroke();
+  x.strokeStyle='#2a3a55';x.beginPath();x.moveTo(X,Y);x.lineTo(X+w,Y);x.stroke();
+  drawRow(x,imgs,X,Y-21,w,M,'a');
+  drawRow(x,imgs,X,Y+21,w,M,'b');
+}
+function drawBracket(imgs){
+  var R=S.rounds,n=R.length;
+  var colW=290,boxW=250,pad=46,headH=140;
+  var rows=R[0].length;
+  var bodyH=Math.max(rows*118,430);
+  var champW=290;
+  var tpH=S.third?170:0;
+  var W=pad*2+n*colW+champW;
+  var mc=document.createElement('canvas').getContext('2d');
+  mc.font='italic 600 16px Arial';
+  var noteLines=S.note?wrapNote(mc,S.note,W-2*pad-260):[];
+  var noteH=noteLines.length?noteLines.length*24+26:0;
+  var H=headH+bodyH+tpH+Math.max(noteH,0)+pad;
+  var c=document.createElement('canvas'),sc=2;
+  c.width=W*sc;c.height=H*sc;
+  var x=c.getContext('2d');x.scale(sc,sc);
+  var g=x.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#0b1220');g.addColorStop(1,'#12233f');
+  x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.textAlign='center';x.textBaseline='alphabetic';
+  x.fillStyle='#fbbf24';x.font='900 36px -apple-system,Segoe UI,Arial';
+  x.fillText(fit(x,S.name.toUpperCase(),W-100),W/2,62);
+  x.fillStyle='#8fa3c0';x.font='600 15px -apple-system,Segoe UI,Arial';
+  var sub='⚽ Sơ đồ đấu loại trực tiếp · '+new Date().toLocaleDateString('vi-VN');
+  if(S.mgrOn)sub+='  ·  🔵 '+S.mgrA+' (A)  đấu  🔴 '+S.mgrB+' (B)';
+  x.fillText(fit(x,sub,W-100),W/2,92);
+  var posY=function(r,m){var cnt=R[r].length,slot=bodyH/cnt;return headH+slot*m+slot/2};
+  x.strokeStyle='#33486b';x.lineWidth=1.6;
+  for(var r=0;r<n-1;r++){
+    for(var m=0;m<R[r].length;m++){
+      var y1=posY(r,m),y2=posY(r+1,m>>1);
+      var x1=pad+r*colW+boxW,x2=pad+(r+1)*colW,xm=(x1+x2)/2;
+      x.beginPath();x.moveTo(x1,y1);x.lineTo(xm,y1);x.lineTo(xm,y2);x.lineTo(x2,y2);x.stroke();
+    }
+  }
+  for(r=0;r<n;r++){
+    x.textAlign='center';x.fillStyle='#fbbf24';
+    x.font='800 15px -apple-system,Segoe UI,Arial';
+    x.fillText(roundLabel(R[r].length*2).toUpperCase(),pad+r*colW+boxW/2,headH-14);
+    for(m=0;m<R[r].length;m++)drawBox(x,imgs,pad+r*colW,posY(r,m),boxW,R[r][m]);
+  }
+  var fin=R[n-1][0],w=winnerOf(fin);
+  var cx0=pad+n*colW,cy=posY(n-1,0);
+  var chH=S.mgrOn?150:124;
+  x.strokeStyle='#33486b';x.beginPath();x.moveTo(cx0-colW+boxW,cy);x.lineTo(cx0,cy);x.stroke();
+  x.fillStyle='rgba(251,191,36,.1)';
+  rr(x,cx0,cy-chH/2,champW-40,chH,14);x.fill();
+  x.strokeStyle='#fbbf24';x.lineWidth=1.6;
+  rr(x,cx0,cy-chH/2,champW-40,chH,14);x.stroke();
+  var ccx=cx0+(champW-40)/2;
+  x.textAlign='center';
+  x.font='30px Arial';x.fillText('🏆',ccx,cy-chH/2+36);
+  x.fillStyle='#fbbf24';x.font='800 12px Arial';
+  x.fillText('VÔ ĐỊCH',ccx,cy-chH/2+58);
+  if(w!=null){
+    var ct=S.teams[w];
+    drawLogo(x,imgs,ct,ccx,cy-chH/2+80,14);
+    x.fillStyle='#e6edf7';x.font='900 19px -apple-system,Segoe UI,Arial';
+    x.fillText(fit(x,ct.name,champW-70),ccx,cy-chH/2+112);
+    if(S.mgrOn){
+      x.fillStyle='#fbbf24';x.font='700 13px -apple-system,Segoe UI,Arial';
+      x.fillText(fit(x,'🎖 HLV: '+mgrOfIdx(S,w),champW-60),ccx,cy-chH/2+134);
+    }
+  }else{
+    x.fillStyle='#8fa3c0';x.font='700 15px Arial';
+    x.fillText('Chưa xác định',ccx,cy+16);
+  }
+  if(S.third){
+    var ty=headH+bodyH+60;
+    x.textAlign='left';
+    x.fillStyle='#cd7f32';x.font='800 15px -apple-system,Segoe UI,Arial';
+    x.fillText('🥉 TRANH HẠNG 3',pad,ty-58);
+    drawBox(x,imgs,pad,ty,boxW,S.tp);
+    var tw=winnerOf(S.tp);
+    if(tw!=null){
+      x.fillStyle='#cd7f32';x.font='700 14px Arial';
+      x.fillText('Hạng 3: '+S.teams[tw].name,pad+boxW+20,ty+5);
+    }
+  }
+  if(noteLines.length){
+    x.textAlign='left';x.font='italic 600 16px -apple-system,Segoe UI,Arial';
+    x.fillStyle='#e8d9a0';
+    noteLines.forEach(function(ln,i){
+      x.fillText((i===0?'📝 ':'    ')+ln,pad,H-14-(noteLines.length-1-i)*24);
+    });
+  }
+  x.textAlign='right';x.fillStyle='#4d6183';x.font='600 12px Arial';
+  x.fillText('Tạo bởi Cúp Đấu Loại ⚽',W-pad,H-16);
+  expURL=c.toDataURL('image/png');
+  c.toBlob(function(b){expBlob=b},'image/png');
+  return expURL;
+}
+function downloadImage(){
+  var a=document.createElement('a');
+  a.href=expURL;
+  a.download=(S.name||'giai-dau').toLowerCase().replace(/\s+/g,'-')+'.png';
+  document.body.appendChild(a);a.click();a.remove();
+}
+async function shareImage(){
+  if(expBlob&&navigator.canShare){
+    var f=new File([expBlob],'ket-qua-giai-dau.png',{type:'image/png'});
+    if(navigator.canShare({files:[f]})){
+      try{await navigator.share({files:[f],title:S.name})}catch(e){}
+      return;
+    }
+  }
+  downloadImage();
+}
+
+/* ================= SHARE LINK ================= */
+function b64u(bytes){
+  var s='';
+  for(var i=0;i<bytes.length;i+=8192)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+8192));
+  return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function ub64u(str){
+  str=str.replace(/-/g,'+').replace(/_/g,'/');
+  while(str.length%4)str+='=';
+  var bin=atob(str),a=new Uint8Array(bin.length);
+  for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);
+  return a;
+}
+async function deflateStr(str){
+  var cs=new CompressionStream('deflate-raw');
+  var w=cs.writable.getWriter();
+  w.write(new TextEncoder().encode(str));w.close();
+  return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+}
+async function inflateStr(bytes){
+  var ds=new DecompressionStream('deflate-raw');
+  var w=ds.writable.getWriter();
+  w.write(bytes);w.close();
+  return new TextDecoder().decode(await new Response(ds.readable).arrayBuffer());
+}
+function shareObj(){
+  var o=JSON.parse(JSON.stringify(S));
+  o.histId=null;
+  o.teams=o.teams.map(function(t,i){
+    if(!t)return null;
+    var L=t.logo||{};
+    /* logo tự tải lên quá nặng cho link -> thay bằng huy hiệu chữ */
+    if(L.type==='img')return {name:t.name,logo:{type:'badge',src:badgeSVG(initials(t.name),PALETTE[i%PALETTE.length],'#1e293b')}};
+    return {name:t.name,logo:{type:L.type,src:L.src}};
+  });
+  return o;
+}
+async function shareLink(){
+  var json=JSON.stringify(shareObj());
+  var hash;
+  try{
+    if(window.CompressionStream)hash='#s='+b64u(await deflateStr(json));
+    else hash='#u='+b64u(new TextEncoder().encode(json));
+  }catch(e){hash='#u='+b64u(new TextEncoder().encode(json))}
+  var url=location.href.split('#')[0]+hash;
+  if(url.length>60000){alert('Dữ liệu quá lớn để chia sẻ qua link.');return}
+  if(location.protocol==='file:'){
+    prompt('⚠️ Link chỉ hoạt động khi app được đưa lên mạng (Netlify/GitHub Pages). Link của bạn:',url);
+    return;
+  }
+  if(navigator.share){
+    try{await navigator.share({title:S.name,text:'Xem kết quả giải đấu "'+S.name+'" ⚽',url:url})}catch(e){}
+  }else{
+    try{await navigator.clipboard.writeText(url);alert('🔗 Đã sao chép link! Gửi cho bạn bè để họ mở xem giải đấu.')}
+    catch(e){prompt('Sao chép link này:',url)}
+  }
+}
+function importShared(){
+  if(!confirm('Lưu giải này về máy? Giải hiện tại trên máy sẽ bị thay thế (lịch sử đã lưu không mất).'))return;
+  SHARED=false;S.histId=null;save();
+  try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+  $('#shareBanner').style.display='none';
+  renderSetup();
+  alert('✅ Đã lưu về máy!');
+}
+async function checkShared(){
+  var m=location.hash.match(/^#(s|u)=(.+)$/);
+  if(!m)return false;
+  try{
+    var bytes=ub64u(m[2]);
+    var json=m[1]==='s'?await inflateStr(bytes):new TextDecoder().decode(bytes);
+    var o=JSON.parse(json);
+    if(!o||!o.rounds||!o.teams)throw new Error('bad');
+    SHARED=true;S=o;
+    propagate();renderSetup();showView('bracket');
+    $('#shareBanner').style.display='';
+    return true;
+  }catch(e){
+    alert('Link chia sẻ không hợp lệ hoặc thiết bị không hỗ trợ giải nén.');
+    return false;
+  }
+}
+
+/* ================= INIT ================= */
+propagate();
+renderSetup();
+checkShared();
+</script>
+</body>
+</html>
