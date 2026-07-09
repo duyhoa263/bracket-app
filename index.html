@@ -81,6 +81,8 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--acc)}
 .tbl .tc .lg.flag{width:28px;height:20px}
 .tbl .tc span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
 .tbl .pts{color:var(--acc);font-weight:900}
+.tbl .sub{color:var(--dim);font-size:10.5px;font-weight:600}
+.tbl td,.tbl th{white-space:nowrap}
 .hitem .hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
 .hitem .hd b{font-size:15px}
 .hitem .hd span{font-size:12px;color:var(--dim);flex-shrink:0}
@@ -89,6 +91,18 @@ input[type=checkbox]{width:19px;height:19px;accent-color:var(--acc)}
 .hitem .ln .lg.flag{width:30px;height:21px}
 .hitem .ln b{color:var(--tx)}
 .hitem .note{font-size:12.5px;font-style:italic;color:#c9b98a;margin:6px 0}
+.dtog{width:100%;margin-top:8px;padding:9px 0;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--acc);font-size:13px;font-weight:700}
+.dbox{margin-top:8px}
+.dmatch{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:6px 8px;margin-bottom:7px}
+.drl{font-size:10px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.dl{display:flex;align-items:center;gap:7px;padding:3px 0}
+.dl .lg{width:22px;height:22px;font-size:9px}
+.dl .lg.flag{width:26px;height:19px}
+.dl .dn{flex:1;min-width:0;font-size:13px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dl.w .dn{color:var(--tx);font-weight:800}
+.dl .dp{font-size:10px;color:var(--gold)}
+.dl .ds{min-width:20px;text-align:center;font-size:14px;font-weight:800;color:var(--dim)}
+.dl.w .ds{color:var(--acc)}
 /* modal */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:50;display:none;align-items:flex-end;justify-content:center}
 .ov.show{display:flex}
@@ -149,12 +163,13 @@ textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--
     <h3>Thiết lập giải</h3>
     <div class="row">
       <select id="szSel" onchange="changeSize(this.value)">
+        <option value="2">2 đội (1 trận)</option>
         <option value="4">4 đội</option>
         <option value="8">8 đội</option>
         <option value="16">16 đội</option>
         <option value="32">32 đội</option>
       </select>
-      <label class="ck"><input type="checkbox" id="thirdCk" onchange="toggleThird(this.checked)"/>Tranh hạng 3</label>
+      <label class="ck" id="thirdLbl"><input type="checkbox" id="thirdCk" onchange="toggleThird(this.checked)"/>Tranh hạng 3</label>
     </div>
     <label class="ck" style="margin-top:10px"><input type="checkbox" id="mgrCk" onchange="toggleMgr(this.checked)"/>Chế độ 2 HLV — Bên A đấu Bên B</label>
     <div id="mgrNames" class="row" style="margin-top:8px;display:none">
@@ -181,7 +196,7 @@ textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--
   </div>
   <div id="champBox"></div>
   <div class="row" style="margin-bottom:10px">
-    <button class="act green" onclick="saveToHistory()">💾 Lưu vào lịch sử</button>
+    <button class="act green" id="saveHistBtn" onclick="saveToHistory()">💾 Lưu vào lịch sử</button>
     <button class="act" onclick="openShare()">🔗 Chia sẻ link</button>
   </div>
   <div id="wrap"><div id="cols"></div></div>
@@ -555,6 +570,7 @@ function renderSetup(){
   $('#tName').value=S.name;
   $('#szSel').value=String(S.size);
   $('#thirdCk').checked=!!S.third;
+  $('#thirdLbl').style.display=S.size<=2?'none':'';
   $('#mgrCk').checked=!!S.mgrOn;
   $('#mgrAIn').value=S.mgrA||'';
   $('#mgrBIn').value=S.mgrB||'';
@@ -590,6 +606,7 @@ function changeSize(v){
   if(hasResults()&&!confirm('Đổi số đội sẽ xóa toàn bộ kết quả. Tiếp tục?')){$('#szSel').value=String(S.size);return}
   var old=S.teams;
   S.size=n;
+  if(n<=2)S.third=false;
   S.teams=new Array(n).fill(null);
   for(var i=0;i<Math.min(old.length,n);i++)S.teams[i]=old[i];
   S.rounds=buildRounds(n);S.tp=emptyMatch();
@@ -772,6 +789,13 @@ function renderBracket(){
     ch+='</div></div>';
   }
   $('#champBox').innerHTML=ch;
+  var editing=false;
+  if(!SHARED&&S.histId){
+    var hh=histRaw();
+    for(var q=0;q<hh.length;q++)if(hh[q].id===S.histId){editing=true;break}
+  }
+  var sb=$('#saveHistBtn');
+  if(sb)sb.textContent=editing?'💾 Cập nhật giải đã lưu':'💾 Lưu vào lịch sử';
 }
 
 /* ================= SCORE MODAL ================= */
@@ -853,6 +877,38 @@ function snapInfo(s){
   var mgr=(w!=null&&s.mgrOn)?mgrOfIdx(s,w):null;
   return {champ:champ,ru:ru,mgr:mgr};
 }
+function matchLineHTML(s,M,side){
+  var idx=side==='a'?M.a:M.b;
+  var t=(idx!=null&&s.teams[idx])?s.teams[idx]:null;
+  var w=wOf(s,M);
+  var win=w!=null&&w===idx;
+  var sc=(side==='a'?M.sa:M.sb);
+  var pen='';
+  if(M.sa!=null&&M.sb!=null&&M.sa===M.sb){
+    var p=side==='a'?M.pa:M.pb;
+    if(p!=null)pen='<span class="dp">('+p+')</span>';
+  }
+  return '<div class="dl'+(win?' w':'')+'">'+logoHTML(t)+
+    '<span class="dn">'+esc(t?t.name:'—')+'</span>'+pen+
+    '<span class="ds">'+(sc==null?'·':sc)+'</span></div>';
+}
+function matchDetailHTML(s){
+  var out='',R=s.rounds;
+  for(var r=0;r<R.length;r++){
+    var lbl=roundLabel(R[r].length*2);
+    for(var m=0;m<R[r].length;m++){
+      var M=R[r][m];
+      if(M.a==null&&M.b==null)continue;
+      out+='<div class="dmatch"><div class="drl">'+esc(lbl)+(R[r].length>1?' · trận '+(m+1):'')+'</div>'+
+        matchLineHTML(s,M,'a')+matchLineHTML(s,M,'b')+'</div>';
+    }
+  }
+  if(s.third&&s.tp&&(s.tp.a!=null||s.tp.b!=null)){
+    out+='<div class="dmatch"><div class="drl" style="color:#cd7f32">🥉 Tranh hạng 3</div>'+
+      matchLineHTML(s,s.tp,'a')+matchLineHTML(s,s.tp,'b')+'</div>';
+  }
+  return out||'<div class="hint" style="margin:6px 0">Chưa có trận nào có kết quả.</div>';
+}
 function renderHist(){
   var h=loadHist();
   if(!h.length){$('#histBody').innerHTML='<div class="empty">Chưa có giải nào được lưu.<br/>Vào tab 🏆 Sơ đồ và nhấn <b>💾 Lưu vào lịch sử</b> khi giải kết thúc.</div>';return}
@@ -870,17 +926,25 @@ function renderHist(){
       out+='<div class="ln"><span>⏳ Giải chưa kết thúc ('+s.size+' đội)</span></div>';
     }
     if(s.note)out+='<div class="note">📝 '+esc(s.note)+'</div>';
+    out+='<button class="dtog" onclick="toggleDetail(this)">📋 Xem chi tiết từng trận ▾</button>'+
+      '<div class="dbox" style="display:none">'+matchDetailHTML(s)+'</div>';
     out+='<div class="btnRow" style="margin-top:8px">'+
-      '<button onclick="openHist(\''+e.id+'\')">📂 Mở lại</button>'+
+      '<button class="pri" onclick="openHist(\''+e.id+'\')">✏️ Sửa giải này</button>'+
       (SHARED?'':'<button class="warn" onclick="delHist(\''+e.id+'\')">🗑 Xóa</button>')+'</div></div>';
   });
   $('#histBody').innerHTML=out;
+}
+function toggleDetail(btn){
+  var box=btn.nextElementSibling;
+  var open=box.style.display==='none';
+  box.style.display=open?'':'none';
+  btn.innerHTML=btn.innerHTML.replace(open?'▾':'▴',open?'▴':'▾');
 }
 function openHist(id){
   var h=loadHist(),e=null;
   for(var i=0;i<h.length;i++)if(h[i].id===id){e=h[i];break}
   if(!e)return;
-  if(!confirm('Mở lại giải "'+e.snap.name+'"? Giải hiện tại sẽ bị thay thế (nên lưu trước nếu cần).'))return;
+  if(!confirm('Mở giải "'+e.snap.name+'" để chỉnh sửa? Sau khi sửa xong, bấm "💾 Cập nhật giải đã lưu" để lưu lại. (Giải đang mở hiện tại sẽ bị thay thế — nên lưu trước nếu cần.)'))return;
   S=JSON.parse(JSON.stringify(e.snap));
   S.histId=e.id;
   propagate();save();renderSetup();showView('bracket');
@@ -898,7 +962,7 @@ function delHist(id){
 function renderStats(){
   var h=loadHist();
   if(!h.length){$('#statsBody').innerHTML='<div class="empty">Chưa có dữ liệu.<br/>Lưu ít nhất 1 giải vào 🗂 Lịch sử để xem thống kê.</div>';return}
-  var T={},logos={},mgrs={},nTour=0;
+  var T={},logos={},mgrStat={},nTour=0;
   h.forEach(function(e){
     var s=e.snap;nTour++;
     var ms=[];
@@ -920,9 +984,18 @@ function renderStats(){
     if(info.champ){
       T[info.champ.name].C++;
       if(info.ru)T[info.ru.name].RU++;
-      if(info.mgr)mgrs[info.mgr]=(mgrs[info.mgr]||0)+1;
+      if(s.mgrOn){
+        var mgA=s.mgrA||'HLV A',mgB=s.mgrB||'HLV B',set={};
+        set[mgA]=1;set[mgB]=1;
+        for(var nm in set){
+          var st=mgrStat[nm]||(mgrStat[nm]={won:0,played:0});
+          st.played++;if(nm===info.mgr)st.won++;
+        }
+      }
     }
   });
+  function pct(a,b){return b?Math.round(a/b*100)+'%':'—'}
+  function per(a,b){return b?(a/b).toFixed(1):'0'}
   var names=Object.keys(T);
   function tcell(n){return '<div class="tc">'+logoHTML({name:n,logo:logos[n]})+'<span>'+esc(n)+'</span></div>'}
   var out='';
@@ -959,26 +1032,33 @@ function renderStats(){
   }else out+='<div class="empty">Chưa có giải nào kết thúc.</div>';
   out+='</div>';
   /* managers */
-  var mnames=Object.keys(mgrs);
+  var mnames=Object.keys(mgrStat);
   if(mnames.length){
-    mnames.sort(function(a,b){return mgrs[b]-mgrs[a]});
-    out+='<div class="panel"><h3>🎖️ HLV chiến thắng</h3><table class="tbl"><tr><th class="l">HLV</th><th>Số lần thắng</th></tr>';
+    mnames.sort(function(a,b){var A=mgrStat[a],B=mgrStat[b];return (B.won/B.played)-(A.won/A.played)||B.won-A.won});
+    out+='<div class="panel"><h3>🎖️ Thành tích HLV</h3><div style="overflow-x:auto"><table class="tbl"><tr><th class="l">HLV</th><th>Giải</th><th>🏆 VĐ</th><th>Tỉ lệ vô địch</th></tr>';
     mnames.forEach(function(n){
-      out+='<tr><td class="l" style="font-weight:800">'+esc(n)+'</td><td style="color:var(--gold);font-weight:900">'+mgrs[n]+'</td></tr>';
+      var m=mgrStat[n];
+      out+='<tr><td class="l" style="font-weight:800">'+esc(n)+'</td><td>'+m.played+'</td><td style="color:var(--gold);font-weight:900">'+m.won+'</td><td style="color:var(--acc);font-weight:800">'+pct(m.won,m.played)+'</td></tr>';
     });
-    out+='</table></div>';
+    out+='</table></div></div>';
   }
   /* leaderboard */
   names.sort(function(a,b){
     return T[b].Pts-T[a].Pts||(T[b].GF-T[b].GA)-(T[a].GF-T[a].GA)||T[b].GF-T[a].GF;
   });
   out+='<div class="panel"><h3>📊 Bảng xếp hạng cộng dồn (T=3đ · H=1đ · B=0đ)</h3>'+
-    '<table class="tbl"><tr><th>#</th><th class="l">Đội</th><th>Tr</th><th>T</th><th>H</th><th>B</th><th>BT</th><th>BB</th><th>Điểm</th></tr>';
+    '<div style="overflow-x:auto"><table class="tbl"><tr><th>#</th><th class="l">Đội</th><th>Tr</th><th>T (tỉ lệ)</th><th>H</th><th>B</th><th>BT (/tr)</th><th>BB (/tr)</th><th>Điểm</th></tr>';
   names.forEach(function(n,i){
     var r=T[n];
-    out+='<tr><td>'+(i+1)+'</td><td class="l">'+tcell(n)+'</td><td>'+r.P+'</td><td>'+r.W+'</td><td>'+r.D+'</td><td>'+r.L+'</td><td>'+r.GF+'</td><td>'+r.GA+'</td><td class="pts">'+r.Pts+'</td></tr>';
+    out+='<tr><td>'+(i+1)+'</td><td class="l">'+tcell(n)+'</td><td>'+r.P+'</td>'+
+      '<td>'+r.W+' <span class="sub">('+pct(r.W,r.P)+')</span></td>'+
+      '<td>'+r.D+'</td><td>'+r.L+'</td>'+
+      '<td>'+r.GF+' <span class="sub">('+per(r.GF,r.P)+')</span></td>'+
+      '<td>'+r.GA+' <span class="sub">('+per(r.GA,r.P)+')</span></td>'+
+      '<td class="pts">'+r.Pts+'</td></tr>';
   });
   out+='</table></div>';
+  out+='<div class="hint" style="text-align:left;margin-top:8px">Trong ngoặc: cột <b>T</b> = tỉ lệ thắng · <b>BT/BB</b> = số bàn thắng/thua trung bình mỗi trận</div></div>';
   $('#statsBody').innerHTML=out;
 }
 

@@ -51,6 +51,12 @@ Mở link bằng **Safari** → nút **Chia sẻ** (ô vuông mũi tên) → **T
 - Ảnh PNG nét cao: đầy đủ sơ đồ, luân lưu, nhãn A/B, vô địch, hạng 3, HLV thắng
 - Nút Chia sẻ/Lưu để lưu thẳng vào Ảnh trên iPhone
 
+### ☁️ Tài khoản & đồng bộ mọi thiết bị
+- Ở tab 👥 Đội có ô **"☁️ Tài khoản & đồng bộ"** → nút **🔑 Đăng nhập bằng Google**
+- Đăng nhập bằng Gmail: mọi giải đấu + lịch sử + thống kê tự lưu lên tài khoản. Mở app trên Chrome, Safari, máy tính hay điện thoại khác → đăng nhập cùng Gmail là thấy y nguyên dữ liệu
+- Dữ liệu đồng bộ 2 chiều tự động (đám mây Firebase, gói miễn phí). Mỗi người chỉ thấy dữ liệu của chính mình
+- Không đăng nhập vẫn dùng bình thường — dữ liệu lưu trong máy như cũ
+
 ### 🗂 Lịch sử & 📊 Thống kê
 - **💾 Lưu vào lịch sử** ở tab Sơ đồ (lưu lần 2 sẽ cập nhật, không tạo bản trùng)
 - Tab Lịch sử: xem lại các giải (vô địch, á quân, HLV thắng, ghi chú), **Mở lại** hoặc Xóa
