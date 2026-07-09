@@ -855,16 +855,19 @@ function saveToHistory(){
       var i=-1;
       for(var k=0;k<h.length;k++)if(h[k].id===S.histId){i=k;break}
       if(i>=0){
-        h[i].snap=JSON.parse(JSON.stringify(S));
-        h[i].date=new Date().toISOString();
+        var prev=h[i];
+        h[i]={id:prev.id,date:prev.date,upd:new Date().toISOString(),
+          snap:JSON.parse(JSON.stringify(S)),
+          bak:{date:prev.date,upd:prev.upd||prev.date,snap:prev.snap}};
         saveHist(h);
-        alert('✅ Đã cập nhật giải này trong lịch sử.');
+        alert('✅ Đã cập nhật (giữ nguyên ngày & vị trí gốc). Nếu sửa nhầm, vào Lịch sử bấm ↩️ Hoàn tác.');
         return;
       }
     }
     var id='h'+Date.now()+Math.floor(Math.random()*1000);
     S.histId=id;save();
-    h.unshift({id:id,date:new Date().toISOString(),snap:JSON.parse(JSON.stringify(S))});
+    var now=new Date().toISOString();
+    h.unshift({id:id,date:now,upd:now,snap:JSON.parse(JSON.stringify(S))});
     saveHist(h);
     alert('✅ Đã lưu vào lịch sử! Xem tab 🗂 Lịch sử và 📊 Thống kê.');
   }catch(e){alert('Không lưu được (bộ nhớ đầy?). Hãy xóa bớt giải cũ trong Lịch sử.')}
@@ -930,6 +933,7 @@ function renderHist(){
       '<div class="dbox" style="display:none">'+matchDetailHTML(s)+'</div>';
     out+='<div class="btnRow" style="margin-top:8px">'+
       '<button class="pri" onclick="openHist(\''+e.id+'\')">✏️ Sửa giải này</button>'+
+      (!SHARED&&e.bak?'<button onclick="restoreBak(\''+e.id+'\')">↩️ Hoàn tác</button>':'')+
       (SHARED?'':'<button class="warn" onclick="delHist(\''+e.id+'\')">🗑 Xóa</button>')+'</div></div>';
   });
   $('#histBody').innerHTML=out;
@@ -948,6 +952,20 @@ function openHist(id){
   S=JSON.parse(JSON.stringify(e.snap));
   S.histId=e.id;
   propagate();save();renderSetup();showView('bracket');
+}
+function restoreBak(id){
+  if(SHARED)return;
+  var h=loadHist(),i=-1;
+  for(var k=0;k<h.length;k++)if(h[k].id===id){i=k;break}
+  if(i<0||!h[i].bak)return;
+  if(!confirm('Khôi phục lại phiên bản TRƯỚC lần sửa gần nhất của giải này?'))return;
+  var cur=h[i],b=cur.bak;
+  h[i]={id:cur.id,date:b.date,upd:new Date().toISOString(),snap:b.snap,
+    bak:{date:cur.date,upd:cur.upd,snap:cur.snap}};
+  saveHist(h);
+  if(S.histId===id){S=JSON.parse(JSON.stringify(b.snap));S.histId=id;propagate();save();renderSetup()}
+  renderHist();
+  alert('↩️ Đã khôi phục bản trước. (Bấm Hoàn tác lần nữa nếu muốn đổi ngược lại)');
 }
 function delHist(id){
   if(SHARED)return;
@@ -1429,8 +1447,9 @@ function applyRemote(d){
     var rh=d.hist?JSON.parse(d.hist):[];
     if(rh.length){
       var map={};
+      var ever=function(e){return String(e.upd||e.date||'')};
       histRaw().concat(rh).forEach(function(e){
-        if(e&&e.id&&(!map[e.id]||String(e.date)>String(map[e.id].date)))map[e.id]=e;
+        if(e&&e.id&&(!map[e.id]||ever(e)>ever(map[e.id])))map[e.id]=e;
       });
       var merged=[];
       for(var k in map)merged.push(map[k]);
